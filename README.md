@@ -11,3 +11,16 @@
     cd frontend
     npm install
     ```
+
+# Run
+- Backend
+
+    ```
+    python3 manage.py runserver
+    ```
+- Frontend
+
+    ```
+    cd frontend
+    npm run start
+    ```
