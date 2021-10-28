@@ -1,5 +1,6 @@
 from django.shortcuts import render
-from rest_framework import generics
+from django.http import Http404
+from rest_framework import generics, serializers
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .serializers import StocksSerializer, CompanySerializer, InsideofSerializer, PricesSerializer
@@ -12,6 +13,19 @@ class StocksView(generics.ListAPIView):
 class CompanyView(generics.ListAPIView):
     queryset = Company.objects.all()
     serializer_class = CompanySerializer
+
+class CompanyDetailView(APIView):
+    def get_object(self, pk):
+        try:
+            return Company.objects.get(pk=pk)
+        except Company.DoesNotExist:
+            raise Http404
+    
+    def get(self, request, pk, format=None):
+        company = self.get_object(pk)
+        serializers = CompanySerializer(company)
+        return Response(serializers.data)
+
 
 class InsideofView(generics.ListAPIView):
     queryset = Insideof.objects.all()
