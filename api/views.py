@@ -23,4 +23,4 @@ class PricesView(generics.ListAPIView):
 
 class HomeView(APIView):
     def get(self, _):
-        return Response({"welcome": "Hello from Django, you've hit the API backend"})
+        return Response({"welcome": "Hello from Django, you've hit the backend API"})
