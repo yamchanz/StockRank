@@ -1,5 +1,7 @@
 from django.shortcuts import render
 from rest_framework import generics
+from rest_framework.views import APIView
+from rest_framework.response import Response
 from .serializers import StocksSerializer, CompanySerializer, InsideofSerializer, PricesSerializer
 from .models import Stocks, Company, Insideof, Prices
 
@@ -18,3 +20,7 @@ class InsideofView(generics.ListAPIView):
 class PricesView(generics.ListAPIView):
     queryset = Prices.objects.all()
     serializer_class = PricesSerializer
+
+class HomeView(APIView):
+    def get(self, _):
+        return Response({"welcome": "Hello from Django, you've hit the API backend"})
