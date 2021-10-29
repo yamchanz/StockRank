@@ -23,7 +23,16 @@ class PricesSerializer(serializers.ModelSerializer):
         model = Prices
         fields = ('tickersymbol', 'pricedate', 'openprice', 'closeprice', 'volume')
 
-class UsersSerializer(serializers.ModelSerializer):
+class UsersRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Users
         fields = ('userlogin', 'password', 'firstname')
+        extra_kwargs = {'password': {'write_only': True}}
+    
+    def create(self, validated_data):
+        password = validated_data.pop('password', None)
+        instance = self.Meta.model(**validated_data)
+        if password is not None:
+            instance.set_password(password)
+        instance.save()
+        return instance

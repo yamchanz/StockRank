@@ -1,9 +1,13 @@
+from django.db import reset_queries
 from django.shortcuts import render
 from django.http import Http404
-from rest_framework import generics, serializers, status
+from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .serializers import StocksSerializer, CompanySerializer, InsideofSerializer, PricesSerializer, UsersSerializer
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.tokens import RefreshToken
+from jwt import decode
+from .serializers import StocksSerializer, CompanySerializer, InsideofSerializer, PricesSerializer, UsersRegistrationSerializer
 from .models import Stocks, Company, Insideof, Prices
 
 class StocksView(generics.ListAPIView):
@@ -33,14 +37,19 @@ class CompanyDetailView(APIView):
         serializers = CompanySerializer(company)
         return Response(serializers.data)
 
-class UsersView(APIView):
+class UsersRegistrationView(APIView):
     def post(self, request, format=None):
-        print(request.data)
-        serializer = UsersSerializer(data=request.data)
+        serializer = UsersRegistrationSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class WatchListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        return Response({"protected": "Hi " + request.user.get_username() + ", here is your watchlist"})
 
 class InsideofView(generics.ListAPIView):
     queryset = Insideof.objects.all()
@@ -53,3 +62,13 @@ class PricesView(generics.ListAPIView):
 class HomeView(APIView):
     def get(self, _):
         return Response({"welcome": "Hello from Django, you've hit the backend API"})
+
+class BlacklistTokenView(APIView):
+    def post(self, request):
+        try:
+            refresh_token = request.data["refresh_token"]
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+            return Response(status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
