@@ -21,7 +21,7 @@ function SignUp() {
     const createAccountHandler = (event) => {
         const user = {
             userlogin: accountName,
-            userpassword: password,
+            password: password,
             firstname: firstName
         };
 

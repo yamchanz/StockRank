@@ -1,4 +1,8 @@
+from django.contrib.auth.base_user import BaseUserManager
 from django.db import models
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+from django.utils.translation import gettext_lazy as _
+from rest_framework.fields import is_simple_callable
 
 
 class Belongsto(models.Model):
@@ -95,13 +99,44 @@ class Stocks(models.Model):
         db_table = 'Stocks'
 
 
-class Users(models.Model):
-    userlogin = models.CharField(db_column='UserLogin', primary_key=True, max_length=100)
-    userpassword = models.CharField(db_column='UserPassword', max_length=100, blank=True, null=True)
-    firstname = models.CharField(db_column='FirstName', max_length=100, blank=True, null=True)
+class UsersManager(BaseUserManager):
+    def create_user(self, userlogin, password, firstname, **other_fields):
+        if not userlogin:
+            raise ValueError(_('You must provide an user login'))
+        user = self.model(userlogin=userlogin, password=password, firstname=firstname, **other_fields)
+        user.set_password(password)
+        user.save()
+        return user
+    
+    def create_superuser(self, userlogin, password, firstname, **other_fields):
+        other_fields.setdefault('is_staff', True)
+        other_fields.setdefault('is_active', True)
+        other_fields.setdefault('is_superuser', True)
 
+        if other_fields.get('is_staff') is not True:
+            raise ValueError(_('Superuser must have is_staff=True'))
+        
+        if other_fields.get('is_superuser') is not True:
+            raise ValueError(_('Superuser must have is_superuser=True'))
+        
+        return self.create_user(userlogin, password, firstname, **other_fields)
+
+
+class Users(AbstractBaseUser, PermissionsMixin):
+    userlogin = models.CharField(db_column='UserLogin', primary_key=True, max_length=100)
+    firstname = models.CharField(db_column='FirstName', max_length=100, blank=True, null=True)
+    is_staff = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+
+    USERNAME_FIELD = 'userlogin'
+    REQUIRED_FIELDS = ['firstname']
+
+    objects = UsersManager()
+
+    def __str__(self):
+        return self.userlogin
+    
     class Meta:
-        managed = False
         db_table = 'Users'
 
 

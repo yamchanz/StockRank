@@ -26,4 +26,4 @@ class PricesSerializer(serializers.ModelSerializer):
 class UsersSerializer(serializers.ModelSerializer):
     class Meta:
         model = Users
-        fields = ('userlogin', 'userpassword', 'firstname')
+        fields = ('userlogin', 'password', 'firstname')
