@@ -15,6 +15,7 @@ class StocksTierView(generics.ListAPIView):
         tier = self.kwargs['tier']
         return Stocks.objects.filter(tier=tier)
     serializer_class = StocksSerializer
+#test
 
 class CompanyView(generics.ListAPIView):
     queryset = Company.objects.all()
