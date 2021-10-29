@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import (StocksView, StocksTierView, CompanyView, CompanyDetailView,
-    InsideofView, PricesView, UsersRegistrationView, HomeView,
-    WatchListView, BlacklistTokenView)
+                    InsideofView, PricesView, UsersRegistrationView, HomeView,
+                    WatchListView, BlacklistTokenView)
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
