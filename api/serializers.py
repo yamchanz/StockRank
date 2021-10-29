@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Stocks, Company, Insideof, Prices
+from .models import Stocks, Company, Insideof, Prices, Users
 
 class StocksSerializer(serializers.ModelSerializer):
     class Meta:
@@ -22,3 +22,8 @@ class PricesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Prices
         fields = ('tickersymbol', 'pricedate', 'openprice', 'closeprice', 'volume')
+
+class UsersSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Users
+        fields = ('userlogin', 'userpassword', 'firstname')

@@ -1,9 +1,9 @@
 from django.shortcuts import render
 from django.http import Http404
-from rest_framework import generics, serializers
+from rest_framework import generics, serializers, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .serializers import StocksSerializer, CompanySerializer, InsideofSerializer, PricesSerializer
+from .serializers import StocksSerializer, CompanySerializer, InsideofSerializer, PricesSerializer, UsersSerializer
 from .models import Stocks, Company, Insideof, Prices
 
 class StocksView(generics.ListAPIView):
@@ -26,6 +26,14 @@ class CompanyDetailView(APIView):
         serializers = CompanySerializer(company)
         return Response(serializers.data)
 
+class UsersView(APIView):
+    def post(self, request, format=None):
+        print(request.data)
+        serializer = UsersSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class InsideofView(generics.ListAPIView):
     queryset = Insideof.objects.all()
