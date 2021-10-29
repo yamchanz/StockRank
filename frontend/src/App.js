@@ -1,17 +1,12 @@
-import './App.css';
-import React from 'react';
-import {
-  BrowserRouter as Router,
-  Switch,
-  Route
-} from "react-router-dom";
-import { SignUp } from './components/SignUp';
-import { Login } from './components/Login';
+import "./App.css";
+import React from "react";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import { SignUp } from "./components/SignUp";
+import { Login } from "./components/Login";
 import { Watchlist } from "./components/Watchlist";
 import { Logout } from "./components/Logout";
 
 function App() {
-
   return (
     <div className="App">
       <Router>
