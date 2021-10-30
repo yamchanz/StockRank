@@ -54,7 +54,7 @@ class UsersView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    # Get current user
+    # Request current user
     def get(self, request):
         user = request.user
         if not user:
@@ -69,7 +69,6 @@ class UsersView(APIView):
         if not user:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        # print(user.get_username())
         print(request.data)
         serializers = UsersSerializer(
             instance=user, data=request.data, partial=True)

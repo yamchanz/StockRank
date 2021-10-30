@@ -1,9 +1,9 @@
 from rest_framework import permissions
 
 
-class IsPostOrGetOrIsAuthenticated(permissions.BasePermission):
+class IsPostOrIsGetOrIsAuthenticated(permissions.BasePermission):
     """
-    Allow unrestricted post, require authentication for rest of the methods.
+    Allow unrestricted post and get, require authentication for rest of the methods.
     """
     SAFE_METHODS = ['POST', 'GET']
 
