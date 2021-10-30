@@ -1,5 +1,6 @@
 import { axiosInstance as axios } from "../axios";
 import React, { useState } from "react";
+import { TextInput, Text, Box, Button, Main, Heading } from "grommet";
 
 function SignUp() {
   const [accountName, setAccountName] = useState("");
@@ -29,33 +30,37 @@ function SignUp() {
   };
 
   return (
-    <div>
-      <div>
-        <p>Account Name</p>
-        <input
+    <Main pad="large" align="center" justify="center" fill={true}>
+      <Heading>Sign Up</Heading>
+      <Box width="medium" gap="small">
+        <Text>Account Name</Text>
+        <TextInput
           type="text"
           onChange={inputAccountNameHandler}
           value={accountName}
-        ></input>
-      </div>
-      <div>
-        <p>First Name</p>
-        <input
+        ></TextInput>
+
+        <Text>First Name</Text>
+        <TextInput
           type="text"
           onChange={inputFirstNameHandler}
           value={firstName}
-        ></input>
-      </div>
-      <div>
-        <p>Password</p>
-        <input
+        ></TextInput>
+
+        <Text>Password</Text>
+        <TextInput
           type="password"
           onChange={inputPasswordHandler}
           value={password}
-        ></input>
-      </div>
-      <button onClick={createAccountHandler}>Create Account</button>
-    </div>
+        ></TextInput>
+        <Button
+          primary
+          onClick={createAccountHandler}
+          label="Create Account"
+          width="medium"
+        ></Button>
+      </Box>
+    </Main>
   );
 }
 

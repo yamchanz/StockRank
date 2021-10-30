@@ -1,5 +1,6 @@
 import { axiosInstance as axios } from "../axios";
 import React, { useState } from "react";
+import { TextInput, Text, Box, Button, Main, Heading } from "grommet";
 import { useHistory } from "react-router-dom";
 
 function Login() {
@@ -32,25 +33,29 @@ function Login() {
   };
 
   return (
-    <div>
-      <div>
-        <p>Account Name</p>
-        <input
+    <Main pad="large" align="center" justify="center" fill={true}>
+      <Heading>Login</Heading>
+      <Box width="medium" gap="small">
+        <Text>Account Name</Text>
+        <TextInput
           type="text"
           onChange={inputAccountNameHandler}
           value={accountName}
-        ></input>
-      </div>
-      <div>
-        <p>Password</p>
-        <input
+        ></TextInput>
+        <Text>Password</Text>
+        <TextInput
           type="password"
           onChange={inputPasswordHandler}
           value={password}
-        ></input>
-      </div>
-      <button onClick={loginHandler}>Login</button>
-    </div>
+        ></TextInput>
+        <Button
+          primary
+          onClick={loginHandler}
+          label="Login"
+          width="medium"
+        ></Button>
+      </Box>
+    </Main>
   );
 }
 

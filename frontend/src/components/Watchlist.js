@@ -18,7 +18,7 @@ function Watchlist() {
       });
   }, []);
 
-  return <div>{watchlist}</div>;
+  return <div> {watchlist} </div>;
 }
 
 export { Watchlist };
