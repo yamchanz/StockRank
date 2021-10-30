@@ -1,6 +1,7 @@
 import { axiosInstance as axios } from "../axios";
 import React, { useState } from "react";
 import { TextInput, Text, Box, Button, Main, Heading } from "grommet";
+import { LinkNext } from "grommet-icons";
 import { useHistory } from "react-router-dom";
 
 function Login() {
@@ -51,10 +52,12 @@ function Login() {
         <Box pad={{ top: "small" }}>
           <Button
             primary
+            reverse
             size="large"
             onClick={loginHandler}
             label="Login"
             width="medium"
+            icon={<LinkNext />}
           ></Button>
         </Box>
       </Box>
