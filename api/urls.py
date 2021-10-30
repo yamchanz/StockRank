@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (StocksView, StocksTierView, CompanyView, CompanyDetailView,
-                    InsideofView, PricesView, UsersRegistrationView, HomeView,
+                    InsideofView, PricesView, UsersView, HomeView,
                     WatchListView, BlacklistTokenView)
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -11,7 +11,7 @@ urlpatterns = [
     path('', HomeView.as_view()),
     path('stocks/', StocksView.as_view()),
     path('stocks/<str:tier>/', StocksTierView.as_view()),
-    path('users/registration/', UsersRegistrationView.as_view()),
+    path('users/', UsersView.as_view()),
     path('company/', CompanyView.as_view()),
     path('company/<int:pk>/', CompanyDetailView.as_view()),
     path('insideof/', InsideofView.as_view()),

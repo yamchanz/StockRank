@@ -26,7 +26,7 @@ function SignUp() {
       firstname: firstName,
     };
 
-    axios.post("users/registration/", user);
+    axios.post("users/", user);
   };
 
   return (

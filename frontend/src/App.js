@@ -9,6 +9,7 @@ import { Watchlist } from "./components/Watchlist";
 import { Logout } from "./components/Logout";
 import { Home } from "./components/Home";
 import { NavBar } from "./components/NavBar";
+import { Profile } from "./components/Settings";
 
 function App() {
   return (
@@ -31,6 +32,9 @@ function App() {
             </Route>
             <Route path="/logout">
               <Logout />
+            </Route>
+            <Route path="/settings">
+              <Profile />
             </Route>
           </Switch>
         </Router>

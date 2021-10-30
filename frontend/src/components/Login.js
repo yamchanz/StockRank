@@ -23,14 +23,20 @@ function Login() {
       password: password,
     };
 
-    axios.post("token/", user).then((res) => {
-      console.log(res.data.access);
-      localStorage.setItem("access_token", res.data.access);
-      localStorage.setItem("refresh_token", res.data.refresh);
-      axios.defaults.headers["Authorization"] =
-        "JWT " + localStorage.getItem("access_token");
-      history.push("/watchlist");
-    });
+    axios
+      .post("token/", user)
+      .then((res) => {
+        localStorage.setItem("access_token", res.data.access);
+        localStorage.setItem("refresh_token", res.data.refresh);
+        axios.defaults.headers["Authorization"] =
+          "JWT " + localStorage.getItem("access_token");
+        history.push("/settings");
+      })
+      .catch((err) => {
+        if (err.status === 401) {
+          console.log("failed to login");
+        }
+      });
   };
 
   return (

@@ -29,7 +29,7 @@ class PricesSerializer(serializers.ModelSerializer):
                   'openprice', 'closeprice', 'volume')
 
 
-class UsersRegistrationSerializer(serializers.ModelSerializer):
+class UsersSerializer(serializers.ModelSerializer):
     class Meta:
         model = Users
         fields = ('userlogin', 'password', 'firstname')
@@ -40,5 +40,19 @@ class UsersRegistrationSerializer(serializers.ModelSerializer):
         instance = self.Meta.model(**validated_data)
         if password is not None:
             instance.set_password(password)
+        instance.save()
+        return instance
+
+    def update(self, instance, validated_data):
+        new_password = validated_data.pop('password', None)
+        new_firstname = validated_data.pop('firstname', None)
+        print(instance.firstname)
+        print(new_firstname)
+        if new_firstname is not None:
+            instance.firstname = new_firstname
+
+        if new_password is not None:
+            instance.set_password(new_password)
+
         instance.save()
         return instance
