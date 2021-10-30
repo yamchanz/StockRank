@@ -53,12 +53,15 @@ function SignUp() {
           onChange={inputPasswordHandler}
           value={password}
         ></TextInput>
-        <Button
-          primary
-          onClick={createAccountHandler}
-          label="Create Account"
-          width="medium"
-        ></Button>
+        <Box pad={{ top: "small" }}>
+          <Button
+            primary
+            size="large"
+            onClick={createAccountHandler}
+            label="Create Account"
+            width="medium"
+          ></Button>
+        </Box>
       </Box>
     </Main>
   );

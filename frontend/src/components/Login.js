@@ -48,12 +48,15 @@ function Login() {
           onChange={inputPasswordHandler}
           value={password}
         ></TextInput>
-        <Button
-          primary
-          onClick={loginHandler}
-          label="Login"
-          width="medium"
-        ></Button>
+        <Box pad={{ top: "small" }}>
+          <Button
+            primary
+            size="large"
+            onClick={loginHandler}
+            label="Login"
+            width="medium"
+          ></Button>
+        </Box>
       </Box>
     </Main>
   );

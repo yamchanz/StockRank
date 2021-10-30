@@ -22,7 +22,7 @@ function NavBar() {
   };
 
   return (
-    <Header background="brand" pad={{ left: "small" }}>
+    <Header background="dark-1" pad={{ left: "small" }}>
       <Button
         plain={true}
         color="white"
