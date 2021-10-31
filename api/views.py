@@ -1,7 +1,6 @@
 from functools import partial
 from django.db import reset_queries
 from django.shortcuts import render
-from django.http import Http404
 from rest_framework import generics, serializers, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -12,35 +11,48 @@ from .models import Stocks, Company, Insideof, Prices
 from .permissions import IsPostOrIsAuthenticated
 
 
-class StocksView(generics.ListAPIView):
-    queryset = Stocks.objects.all()
-    serializer_class = StocksSerializer
+class StocksView(APIView):
+    """
+    Example: http://127.0.0.1:8000/api/stocks/?tier=A
+    """
+
+    def get(self, request):
+        stocks = Stocks.objects
+
+        if "tier" in request.GET:
+            stocks = stocks.filter(tier=request.GET["tier"])
+
+        serializers = StocksSerializer(stocks, many=True)
+        return Response(serializers.data, status=status.HTTP_200_OK)
 
 
-class StocksTierView(generics.ListAPIView):
-    def get_queryset(self):
-        tier = self.kwargs['tier']
-        return Stocks.objects.filter(tier=tier)
-    serializer_class = StocksSerializer
-# test
+class CompanyView(APIView):
+    """
+    Example: http://127.0.0.1:8000/api/company/?name=Ap&marketcap_gte=7940000
+    """
 
+    def get(self, request):
+        companies = Company.objects
 
-class CompanyView(generics.ListAPIView):
-    queryset = Company.objects.all()
-    serializer_class = CompanySerializer
+        if "name" in request.GET:
+            companies = companies.filter(
+                companyname__startswith=request.GET["name"])
 
+        if "sector" in request.GET:
+            companies = companies.filter(
+                sector__startswith=request.GET["sector"])
 
-class CompanyDetailView(APIView):
-    def get_object(self, pk):
-        try:
-            return Company.objects.get(pk=pk)
-        except Company.DoesNotExist:
-            raise Http404
+        if "industry" in request.GET:
+            companies = companies.filter(
+                industry__startswith=request.GET["industry"])
 
-    def get(self, request, pk, format=None):
-        company = self.get_object(pk)
-        serializers = CompanySerializer(company)
-        return Response(serializers.data)
+        if "marketcap_gte" in request.GET:
+            companies = companies.filter(
+                marketcap__gte=request.GET["marketcap_gte"]
+            )
+
+        serializers = CompanySerializer(companies, many=True)
+        return Response(serializers.data, status=status.HTTP_200_OK)
 
 
 class UsersView(APIView):
