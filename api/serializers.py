@@ -1,5 +1,6 @@
-from rest_framework import serializers
-from .models import Stocks, Company, Insideof, Prices, Users
+from django.contrib.auth import models
+from rest_framework import fields, serializers
+from .models import Stocks, Company, Insideof, Prices, Users, Watchlist, Belongsto
 
 
 class StocksSerializer(serializers.ModelSerializer):
@@ -27,6 +28,38 @@ class PricesSerializer(serializers.ModelSerializer):
         model = Prices
         fields = ('tickersymbol', 'pricedate',
                   'openprice', 'closeprice', 'volume')
+
+
+class BelongsToSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Belongsto
+        fields = ('userlogin', 'watchlistid')
+
+
+class WatchlistSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Watchlist
+        fields = ('watchlistid', 'watchlistname', 'datecreated')
+        optional_fields = ['watchlistid', ]
+
+    def create(self, validated_data):
+        watchlist_name = validated_data['watchlistname']
+        datecreated = validated_data['datecreated']
+        instance = self.Meta.model(**validated_data)
+
+        if (watchlist_name is not None) and (datecreated is not None):
+            instance.save()
+
+        return instance
+
+    def update(self, instance, validated_data):
+        new_name = validated_data.pop('watchlistname', None)
+
+        if new_name is not None:
+            instance.watchlistname = new_name
+
+        instance.save()
+        return instance
 
 
 class UsersSerializer(serializers.ModelSerializer):

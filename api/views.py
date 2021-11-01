@@ -1,3 +1,4 @@
+from datetime import datetime
 from functools import partial
 from django.db import reset_queries
 from django.shortcuts import render
@@ -6,8 +7,10 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import StocksSerializer, CompanySerializer, InsideofSerializer, PricesSerializer, UsersSerializer
-from .models import Stocks, Company, Insideof, Prices
+from .serializers import (StocksSerializer, CompanySerializer, InsideofSerializer,
+                          PricesSerializer, UsersSerializer, WatchlistSerializer,
+                          BelongsToSerializer)
+from .models import Belongsto, Stocks, Company, Insideof, Prices, Watchlist
 from .permissions import IsPostOrIsAuthenticated
 
 
@@ -106,8 +109,62 @@ class UsersView(APIView):
 class WatchListView(APIView):
     permission_classes = [IsAuthenticated]
 
+    # Add entry to BelongsTo table when creating new watchlists
+    def setup_belongs_to(self, watchlistid, userlogin):
+        belongsTo_data = {'watchlistid': watchlistid,
+                          'userlogin': userlogin}
+        belongsTo_serializer = BelongsToSerializer(data=belongsTo_data)
+        if belongsTo_serializer.is_valid():
+            belongsTo_serializer.save()
+
+    # Request watchlists belongs to current user
     def get(self, request):
-        return Response({"protected": "Hi " + request.user.get_username() + ", here is your watchlist"})
+        user = request.user
+        if not user:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        watchlist_ids = Belongsto.objects.filter(
+            userlogin=user.pk).values_list('watchlistid')
+        watchlists = Watchlist.objects.filter(watchlistid__in=watchlist_ids)
+        watchlist_serializer = WatchlistSerializer(watchlists, many=True)
+        return Response(watchlist_serializer.data, status=status.HTTP_200_OK)
+
+    # Create a watchlist
+    def post(self, request):
+        user = request.user
+        if not user:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        data = request.data
+        data['datecreated'] = datetime.now()
+        watchlist_serializer = WatchlistSerializer(data=request.data)
+
+        if watchlist_serializer.is_valid():
+            watchlist_serializer.save()
+
+            self.setup_belongs_to(
+                watchlist_serializer.data['watchlistid'], user.get_username())
+
+            return Response(watchlist_serializer.data, status=status.HTTP_201_CREATED)
+        return Response(watchlist_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+     # Update a watchlist
+    def put(self, request):
+        user = request.user
+        if not user:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        # TODO: fill body
+        return Response(status=status.HTTP_200_OK)
+
+    # Delete a watchlist
+    def delete(self, request):
+        user = request.user
+        if not user:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        # TODO: fill body
+        return Response(status=status.HTTP_200_OK)
 
 
 class InsideofView(generics.ListAPIView):

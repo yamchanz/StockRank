@@ -179,7 +179,7 @@ class Watches(models.Model):
 
 
 class Watchlist(models.Model):
-    watchlistid = models.IntegerField(
+    watchlistid = models.AutoField(
         db_column='WatchlistID', primary_key=True)
     watchlistname = models.CharField(
         db_column='WatchlistName', max_length=100, blank=True, null=True)
@@ -187,5 +187,4 @@ class Watchlist(models.Model):
         db_column='DateCreated', blank=True, null=True)
 
     class Meta:
-        managed = False
         db_table = 'Watchlist'
