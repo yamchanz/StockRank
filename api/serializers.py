@@ -1,6 +1,6 @@
 from django.contrib.auth import models
 from rest_framework import fields, serializers
-from .models import Stocks, Company, Insideof, Prices, Users, Watchlist, Belongsto
+from .models import Stocks, Company, Insideof, Prices, Users, Watches, Watchlist, Belongsto
 
 
 class StocksSerializer(serializers.ModelSerializer):
@@ -34,7 +34,7 @@ class BelongsToSerializer(serializers.ModelSerializer):
     class Meta:
         model = Belongsto
         fields = ('userlogin', 'watchlistid')
-
+        
 
 class WatchlistSerializer(serializers.ModelSerializer):
     class Meta:
@@ -59,6 +59,22 @@ class WatchlistSerializer(serializers.ModelSerializer):
             instance.watchlistname = new_name
 
         instance.save()
+        return instance
+
+
+class WatchesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Watches
+        fields = ('watchlistid', 'tickersymbol')
+    
+    def create(self, validated_data):
+        watchlistid = validated_data['watchlistid']
+        tickersymbol = validated_data['tickersymbol']
+        instance = self.Meta.model(**validated_data)
+
+        if (watchlistid is not None) and (tickersymbol is not None):
+            instance.save()
+
         return instance
 
 

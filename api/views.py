@@ -9,8 +9,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import (StocksSerializer, CompanySerializer, InsideofSerializer,
                           PricesSerializer, UsersSerializer, WatchlistSerializer,
-                          BelongsToSerializer)
-from .models import Belongsto, Stocks, Company, Insideof, Prices, Watchlist
+                          BelongsToSerializer, WatchesSerializer)
+from .models import Belongsto, Stocks, Company, Insideof, Prices, Watchlist, Watches
 from .permissions import IsPostOrIsAuthenticated
 
 
@@ -151,7 +151,7 @@ class UsersView(APIView):
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
-class WatchListView(APIView):
+class WatchlistView(APIView):
     permission_classes = [IsAuthenticated]
 
     # Add entry to BelongsTo table when creating new watchlists
@@ -212,14 +212,63 @@ class WatchListView(APIView):
         return Response(status=status.HTTP_200_OK)
 
 
+class WatchesView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    # Request watchlist data
+    def get(self, request):
+        user = request.user
+        if not user:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        watches = Watches.objects
+        if "watchlistid" in request.GET:
+            watches = watches.filter(watchlistid=request.GET["watchlistid"])
+
+        serializer = WatchesSerializer(watches, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    # Create an entry
+    def post(self, request):
+        user = request.user
+        if not user:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = WatchesSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Delete an entry
+    def delete(self, request):
+        user = request.user
+        if not user:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        # TODO: fill body
+        return Response(status=status.HTTP_200_OK) 
+
+
 class InsideofView(generics.ListAPIView):
     queryset = Insideof.objects.all()
     serializer_class = InsideofSerializer
 
 
 class PricesView(generics.ListAPIView):
-    queryset = Prices.objects.all()
-    serializer_class = PricesSerializer
+    """
+    Example: http://127.0.0.1:8000/api/prices/?ticker=TSLA
+    """
+
+    def get(self, request):
+        prices = Prices.objects
+
+        if "ticker" in request.GET:
+            prices = prices.filter(tickersymbol=request.GET["ticker"])
+
+        serializers = PricesSerializer(prices, many=True)
+        return Response(serializers.data, status=status.HTTP_200_OK)
 
 
 class HomeView(APIView):
