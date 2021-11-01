@@ -12,7 +12,7 @@ import pandas_datareader as pdr
 
 def insertIntoUsers(login, password, name):
     try:
-        connection = mysql.connector.connect(host='35.232.50.181',
+        connection = mysql.connector.connect(host='',
                                              database='Stocks',
                                              user='root',
                                              password='')
@@ -37,7 +37,7 @@ def insertIntoUsers(login, password, name):
 
 def insertIntoRanking(tier, percentile, color):
     try:
-        connection = mysql.connector.connect(host='35.232.50.181',
+        connection = mysql.connector.connect(host='',
                                              database='Stocks',
                                              user='root',
                                              password='')
@@ -62,7 +62,7 @@ def insertIntoRanking(tier, percentile, color):
 
 def insertIntoInsideOf(ticker, exchange):
     try:
-        connection = mysql.connector.connect(host='35.232.50.181',
+        connection = mysql.connector.connect(host='',
                                              database='Stocks',
                                              user='root',
                                              password='')
@@ -87,7 +87,7 @@ def insertIntoInsideOf(ticker, exchange):
 
 def insertIntoExchange(exchange, location, timezone):
     try:
-        connection = mysql.connector.connect(host='35.232.50.181',
+        connection = mysql.connector.connect(host='',
                                              database='Stocks',
                                              user='root',
                                              password='')
@@ -112,7 +112,7 @@ def insertIntoExchange(exchange, location, timezone):
 
 def insertIntoPrices(ticker, date, open, close, volume):
     try:
-        connection = mysql.connector.connect(host='35.232.50.181',
+        connection = mysql.connector.connect(host='',
                                              database='Stocks',
                                              user='root',
                                              password='')
@@ -137,7 +137,7 @@ def insertIntoPrices(ticker, date, open, close, volume):
 
 def insertIntoCompany(company_id, company_name, sector, industry, country, market_cap, description, logo):
     try:
-        connection = mysql.connector.connect(host='35.222.171.0',
+        connection = mysql.connector.connect(host='',
                                              database='Stocks',
                                              user='root',
                                              password='')
@@ -163,7 +163,7 @@ def insertIntoCompany(company_id, company_name, sector, industry, country, marke
 def insertIntoStocks(ticker, company_id, rank, revenue_growth, price_sales, gross_margins,
                      total_cash, total_debt, ebitda, recommendation_mean):
     try:
-        connection = mysql.connector.connect(host='35.232.50.181',
+        connection = mysql.connector.connect(host='',
                                              database='Stocks',
                                              user='root',
                                              password='')
@@ -432,6 +432,18 @@ def main():
             if i == 0:  # skip the first line
                 continue
             symbol, company_name, _, _, _, market_cap, country, _, _, sector, industry = line
+            if country == "" and 'country' in stock.info:
+                country = stock.info['country']
+            if sector == "" and 'sector' in stock.info:
+                sector = stock.info['sector']
+            if industry == "" and 'industry' in stock.info:
+                industry = stock.info['industry']
+            description = "<no description>"
+            if 'longBusinessSummary' in stock.info:
+                description = stock.info['longBusinessSummary']
+            logo = "<no url>"
+            if 'logo_url' in stock.info:
+                logo = stock.info['logo_url'] 
             # stock = yf.Ticker(symbol)
             # insertIntoCompany(i, company_name, sector, industry, country, market_cap, description, logo)
             # insertIntoStocks(symbol, i, *getStockInfo(stock))
@@ -443,15 +455,3 @@ def main():
 main()
 
 
-""" if country == "" and 'country' in stock.info:
-        country = stock.info['country']
-    if sector == "" and 'sector' in stock.info:
-        sector = stock.info['sector']
-    if industry == "" and 'industry' in stock.info:
-        industry = stock.info['industry']
-    description = "<no description>"
-    if 'longBusinessSummary' in stock.info:
-        description = stock.info['longBusinessSummary']
-    logo = "<no url>"
-    if 'logo_url' in stock.info:
-        logo = stock.info['logo_url'] """
