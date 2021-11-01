@@ -31,28 +31,35 @@ class StocksView(APIView):
 
 class CompanyView(APIView):
     """
-    Example: http://127.0.0.1:8000/api/company/?name=Ap&marketcap_gte=7940000
+    Example: http://127.0.0.1:8000/api/company/?name=A&marketcap_gte=79400&tier=B
     """
 
     def get(self, request):
         companies = Company.objects
 
-        if "name" in request.GET:
+        if 'name' in request.GET:
             companies = companies.filter(
-                companyname__startswith=request.GET["name"])
+                companyname__startswith=request.GET['name'])
 
-        if "sector" in request.GET:
+        if 'sector' in request.GET:
             companies = companies.filter(
-                sector__startswith=request.GET["sector"])
+                sector__startswith=request.GET['sector'])
 
-        if "industry" in request.GET:
+        if 'industry' in request.GET:
             companies = companies.filter(
-                industry__startswith=request.GET["industry"])
+                industry__startswith=request.GET['industry'])
 
-        if "marketcap_gte" in request.GET:
+        if 'marketcap_gte' in request.GET:
             companies = companies.filter(
-                marketcap__gte=request.GET["marketcap_gte"]
+                marketcap__gte=request.GET['marketcap_gte']
             )
+
+        if 'tier' in request.GET:
+            company_ids = companies.values_list('companyid')
+            satisfied_company_ids = Stocks.objects.filter(
+                companyid__in=company_ids).filter(tier=request.GET['tier'])\
+                .values_list('companyid', flat=True)
+            companies = companies.filter(companyid__in=satisfied_company_ids)
 
         serializers = CompanySerializer(companies, many=True)
         return Response(serializers.data, status=status.HTTP_200_OK)
