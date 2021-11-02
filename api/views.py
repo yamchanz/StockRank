@@ -1,5 +1,5 @@
 from datetime import datetime
-from functools import partial
+from functools import partial, partialmethod
 from django.db import reset_queries
 from django.shortcuts import render
 from rest_framework import generics, serializers, status
@@ -171,7 +171,7 @@ class WatchlistView(APIView):
         watchlist_ids = Belongsto.objects.filter(
             userlogin=user.pk).values_list('watchlistid')
         watchlists = Watchlist.objects.filter(watchlistid__in=watchlist_ids)
-        watchlist_serializer = WatchlistSerializer(watchlists, many=True)
+        watchlist_serializer = WatchlistSerializer(instance=watchlists, many=True)
         return Response(watchlist_serializer.data, status=status.HTTP_200_OK)
 
     # Create a watchlist
@@ -198,18 +198,37 @@ class WatchlistView(APIView):
         user = request.user
         if not user:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+        watchlist_id = request.data['watchlistid']
+        if not watchlist_id:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        
 
         # TODO: fill body
-        return Response(status=status.HTTP_200_OK)
+        print(request.data)
+        watchlist = Watchlist.objects.filter(pk=watchlist_id)
+        print(watchlist)
+        serializers = WatchlistSerializer(instance=watchlist[0], data=request.data)
+        if serializers.is_valid():
+            serializers.save()
+            return Response(serializers.data, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
     # Delete a watchlist
     def delete(self, request):
         user = request.user
         if not user:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+        watchlist_id = request.data['watchlistid']
+        if not watchlist_id:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        watchlist = Watchlist.objects.filter(pk=watchlist_id)[0]
+        op_success = watchlist.delete()
+        if op_success:
+            return Response(status=status.HTTP_200_OK)
+
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
         # TODO: fill body
-        return Response(status=status.HTTP_200_OK)
 
 
 class WatchesView(APIView):
