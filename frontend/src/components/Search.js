@@ -78,70 +78,68 @@ const Search = React.memo(() => {
   };
 
   return (
-    <Box>
-      <Box pad="large" gap="medium">
-        <Box gap="small">
-          <Text>Company Name</Text>
-          <TextInput
-            placeholder="Starting with or Exact"
-            value={companyName}
-            onChange={companyNameOnChangeHandler}
-          />
-        </Box>
-        <Box gap="small">
-          <Text>Sector</Text>
-          <TextInput
-            placeholder="Ex. Technology"
-            value={sector}
-            onChange={sectorOnChangeHandler}
-          />
-        </Box>
-        <Box gap="small">
-          <Text>Industry</Text>
-          <TextInput
-            placeholder="Ex. Biotechnology"
-            value={industry}
-            onChange={industryOnChangeHandler}
-          />
-        </Box>
-        <Box gap="small">
-          <Text>Country</Text>
-          <TextInput
-            placeholder="Ex. United States"
-            value={country}
-            onChange={countryOnChangeHandler}
-          />
-        </Box>
-        <Box gap="small">
-          <Text>Market Cap Greater or Eaquals to</Text>
-          <TextInput
-            placeholder="Ex. 500000"
-            type="number"
-            value={marketCapGTE || ""}
-            onChange={marketCapGTEOnChangeHandler}
-          />
-        </Box>
-        <Box gap="small">
-          <Text>Market Cap Less than or Eaquals to</Text>
-          <TextInput
-            placeholder="Ex. 100000000"
-            type="number"
-            value={marketCapLTE || ""}
-            onChange={marketCapLTEOnChangeHandler}
-          />
-        </Box>
-        <Box gap="small">
-          <Text>Tier</Text>
-          <Select
-            clear
-            closeOnChange
-            options={TIER_OPTIONS}
-            onChange={onSelectChangeHandler}
-            defaultValue="A"
-          ></Select>
-        </Box>
-        <Button label="Search" onClick={onSearchClickHandler}></Button>
+    <Box pad="large" gap="medium">
+      <Box gap="small">
+        <Text>Company Name</Text>
+        <TextInput
+          placeholder="Starting with or Exact"
+          value={companyName}
+          onChange={companyNameOnChangeHandler}
+        />
       </Box>
+      <Box gap="small">
+        <Text>Sector</Text>
+        <TextInput
+          placeholder="Ex. Technology"
+          value={sector}
+          onChange={sectorOnChangeHandler}
+        />
+      </Box>
+      <Box gap="small">
+        <Text>Industry</Text>
+        <TextInput
+          placeholder="Ex. Biotechnology"
+          value={industry}
+          onChange={industryOnChangeHandler}
+        />
+      </Box>
+      <Box gap="small">
+        <Text>Country</Text>
+        <TextInput
+          placeholder="Ex. United States"
+          value={country}
+          onChange={countryOnChangeHandler}
+        />
+      </Box>
+      <Box gap="small">
+        <Text>Market Cap Greater or Eaquals to</Text>
+        <TextInput
+          placeholder="Ex. 500000"
+          type="number"
+          value={marketCapGTE || ""}
+          onChange={marketCapGTEOnChangeHandler}
+        />
+      </Box>
+      <Box gap="small">
+        <Text>Market Cap Less than or Eaquals to</Text>
+        <TextInput
+          placeholder="Ex. 100000000"
+          type="number"
+          value={marketCapLTE || ""}
+          onChange={marketCapLTEOnChangeHandler}
+        />
+      </Box>
+      <Box gap="small">
+        <Text>Tier</Text>
+        <Select
+          clear
+          closeOnChange
+          options={TIER_OPTIONS}
+          onChange={onSelectChangeHandler}
+          defaultValue="A"
+        ></Select>
+      </Box>
+      <Button label="Search" onClick={onSearchClickHandler}></Button>
       <CompanyTable companies={searchResult} />
     </Box>
   );
