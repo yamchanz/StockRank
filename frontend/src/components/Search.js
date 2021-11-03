@@ -145,7 +145,7 @@ function Search() {
 }
 
 const capitalizeFirstChar = (str) => {
-  return str.toUpperCase() + str.substr(1);
+  return str[0].toUpperCase() + str.substr(1);
 };
 
 const createSearchURL = (
