@@ -39,7 +39,6 @@ const CompanyTable = React.memo(({ companies }) => {
 });
 
 const isEmpty = (data) => {
-  console.log("refresh");
   return (
     data === undefined ||
     Object.keys(data).length === 0 ||
