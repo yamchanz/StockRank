@@ -1,6 +1,6 @@
 import { axiosInstance as axios } from "../axios";
 import React, { useState } from "react";
-import { Box, Select, TextInput, Button } from "grommet";
+import { Box, Select, TextInput, Text, Button } from "grommet";
 
 function Search() {
   const [companyName, setCompanyName] = useState("");
@@ -13,7 +13,6 @@ function Search() {
   const [searchResult, setSearchResult] = useState({});
 
   const TIER_OPTIONS = [
-    "",
     "SS",
     "S+",
     "S",
@@ -78,45 +77,76 @@ function Search() {
   };
 
   return (
-    <Box>
-      <TextInput
-        placeholder="Company Name"
-        value={companyName}
-        onChange={companyNameOnChangeHandler}
-      />
-      <TextInput
-        placeholder="Sector"
-        value={sector}
-        onChange={sectorOnChangeHandler}
-      />
-      <TextInput
-        placeholder="Industry"
-        value={industry}
-        onChange={industryOnChangeHandler}
-      />
-      <TextInput
-        placeholder="Country"
-        value={country}
-        onChange={countryOnChangeHandler}
-      />
-      <TextInput
-        placeholder="Market Cap >="
-        type="number"
-        value={marketCapGTE || ""}
-        onChange={marketCapGTEOnChangeHandler}
-      />
-      <TextInput
-        placeholder="Market Cap <="
-        type="number"
-        value={marketCapLTE || ""}
-        onChange={marketCapLTEOnChangeHandler}
-      />
-      <Select options={TIER_OPTIONS} onChange={onSelectChangeHandler}></Select>
+    <Box pad="large" gap="medium">
+      <Box gap="small">
+        <Text>Company Name</Text>
+        <TextInput
+          placeholder="Starting with or Exact"
+          value={companyName}
+          onChange={companyNameOnChangeHandler}
+        />
+      </Box>
+      <Box gap="small">
+        <Text>Sector</Text>
+        <TextInput
+          placeholder="Ex. Technology"
+          value={sector}
+          onChange={sectorOnChangeHandler}
+        />
+      </Box>
+      <Box gap="small">
+        <Text>Industry</Text>
+        <TextInput
+          placeholder="Ex. Biotechnology"
+          value={industry}
+          onChange={industryOnChangeHandler}
+        />
+      </Box>
+      <Box gap="small">
+        <Text>Country</Text>
+        <TextInput
+          placeholder="Ex. United States"
+          value={country}
+          onChange={countryOnChangeHandler}
+        />
+      </Box>
+      <Box gap="small">
+        <Text>Market Cap Greater or Eaquals to</Text>
+        <TextInput
+          placeholder="Ex. 500000"
+          type="number"
+          value={marketCapGTE || ""}
+          onChange={marketCapGTEOnChangeHandler}
+        />
+      </Box>
+      <Box gap="small">
+        <Text>Market Cap Less than or Eaquals to</Text>
+        <TextInput
+          placeholder="Ex. 100000000"
+          type="number"
+          value={marketCapLTE || ""}
+          onChange={marketCapLTEOnChangeHandler}
+        />
+      </Box>
+      <Box gap="small">
+        <Text>Tier</Text>
+        <Select
+          clear
+          closeOnChange
+          options={TIER_OPTIONS}
+          onChange={onSelectChangeHandler}
+          defaultValue="A"
+        ></Select>
+      </Box>
       <Button label="Search" onClick={onSearchClickHandler}></Button>
       {JSON.stringify(searchResult)}
     </Box>
   );
 }
+
+const capitalizeFirstChar = (str) => {
+  return str.toUpperCase() + str.substr(1);
+};
 
 const createSearchURL = (
   companyName,
@@ -129,22 +159,22 @@ const createSearchURL = (
 ) => {
   let searchURL = "";
   if (companyName.length > 0) {
-    searchURL += "name=" + companyName;
+    searchURL += "name=" + capitalizeFirstChar(companyName);
   }
 
   if (sector.length > 0) {
     if (searchURL.length > 0) searchURL += "&";
-    searchURL += "sector=" + sector;
+    searchURL += "sector=" + capitalizeFirstChar(sector);
   }
 
   if (industry.length > 0) {
     if (searchURL.length > 0) searchURL += "&";
-    searchURL += "industry=" + industry;
+    searchURL += "industry=" + capitalizeFirstChar(industry);
   }
 
   if (country.length > 0) {
     if (searchURL.length > 0) searchURL += "&";
-    searchURL += "country=" + country;
+    searchURL += "country=" + capitalizeFirstChar(country);
   }
 
   if (tier.length > 0) {
