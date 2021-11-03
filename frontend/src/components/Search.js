@@ -1,8 +1,9 @@
 import { axiosInstance as axios } from "../axios";
 import React, { useState } from "react";
 import { Box, Select, TextInput, Text, Button } from "grommet";
+import { CompanyTable } from "./CompanyTable";
 
-function Search() {
+const Search = React.memo(() => {
   const [companyName, setCompanyName] = useState("");
   const [sector, setSector] = useState("");
   const [industry, setIndustry] = useState("");
@@ -10,7 +11,7 @@ function Search() {
   const [marketCapGTE, setMarketCapGTE] = useState();
   const [marketCapLTE, setMarketCapLTE] = useState();
   const [tier, setTier] = useState("");
-  const [searchResult, setSearchResult] = useState({});
+  const [searchResult, setSearchResult] = useState();
 
   const TIER_OPTIONS = [
     "SS",
@@ -77,72 +78,74 @@ function Search() {
   };
 
   return (
-    <Box pad="large" gap="medium">
-      <Box gap="small">
-        <Text>Company Name</Text>
-        <TextInput
-          placeholder="Starting with or Exact"
-          value={companyName}
-          onChange={companyNameOnChangeHandler}
-        />
+    <Box>
+      <Box pad="large" gap="medium">
+        <Box gap="small">
+          <Text>Company Name</Text>
+          <TextInput
+            placeholder="Starting with or Exact"
+            value={companyName}
+            onChange={companyNameOnChangeHandler}
+          />
+        </Box>
+        <Box gap="small">
+          <Text>Sector</Text>
+          <TextInput
+            placeholder="Ex. Technology"
+            value={sector}
+            onChange={sectorOnChangeHandler}
+          />
+        </Box>
+        <Box gap="small">
+          <Text>Industry</Text>
+          <TextInput
+            placeholder="Ex. Biotechnology"
+            value={industry}
+            onChange={industryOnChangeHandler}
+          />
+        </Box>
+        <Box gap="small">
+          <Text>Country</Text>
+          <TextInput
+            placeholder="Ex. United States"
+            value={country}
+            onChange={countryOnChangeHandler}
+          />
+        </Box>
+        <Box gap="small">
+          <Text>Market Cap Greater or Eaquals to</Text>
+          <TextInput
+            placeholder="Ex. 500000"
+            type="number"
+            value={marketCapGTE || ""}
+            onChange={marketCapGTEOnChangeHandler}
+          />
+        </Box>
+        <Box gap="small">
+          <Text>Market Cap Less than or Eaquals to</Text>
+          <TextInput
+            placeholder="Ex. 100000000"
+            type="number"
+            value={marketCapLTE || ""}
+            onChange={marketCapLTEOnChangeHandler}
+          />
+        </Box>
+        <Box gap="small">
+          <Text>Tier</Text>
+          <Select
+            clear
+            closeOnChange
+            options={TIER_OPTIONS}
+            onChange={onSelectChangeHandler}
+            defaultValue="A"
+          ></Select>
+        </Box>
+        <Button label="Search" onClick={onSearchClickHandler}></Button>
       </Box>
-      <Box gap="small">
-        <Text>Sector</Text>
-        <TextInput
-          placeholder="Ex. Technology"
-          value={sector}
-          onChange={sectorOnChangeHandler}
-        />
-      </Box>
-      <Box gap="small">
-        <Text>Industry</Text>
-        <TextInput
-          placeholder="Ex. Biotechnology"
-          value={industry}
-          onChange={industryOnChangeHandler}
-        />
-      </Box>
-      <Box gap="small">
-        <Text>Country</Text>
-        <TextInput
-          placeholder="Ex. United States"
-          value={country}
-          onChange={countryOnChangeHandler}
-        />
-      </Box>
-      <Box gap="small">
-        <Text>Market Cap Greater or Eaquals to</Text>
-        <TextInput
-          placeholder="Ex. 500000"
-          type="number"
-          value={marketCapGTE || ""}
-          onChange={marketCapGTEOnChangeHandler}
-        />
-      </Box>
-      <Box gap="small">
-        <Text>Market Cap Less than or Eaquals to</Text>
-        <TextInput
-          placeholder="Ex. 100000000"
-          type="number"
-          value={marketCapLTE || ""}
-          onChange={marketCapLTEOnChangeHandler}
-        />
-      </Box>
-      <Box gap="small">
-        <Text>Tier</Text>
-        <Select
-          clear
-          closeOnChange
-          options={TIER_OPTIONS}
-          onChange={onSelectChangeHandler}
-          defaultValue="A"
-        ></Select>
-      </Box>
-      <Button label="Search" onClick={onSearchClickHandler}></Button>
-      {JSON.stringify(searchResult)}
+      <CompanyTable companies={searchResult} />
     </Box>
   );
-}
+});
 
 const capitalizeFirstChar = (str) => {
   return str[0].toUpperCase() + str.substr(1);
