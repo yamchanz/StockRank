@@ -1,4 +1,12 @@
-import { Table, TableBody, TableCell, TableHeader, TableRow } from "grommet";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHeader,
+  TableRow,
+  TableFooter,
+  Text,
+} from "grommet";
 import React from "react";
 
 const CompanyTable = React.memo(({ companies }) => {
@@ -32,6 +40,13 @@ const CompanyTable = React.memo(({ companies }) => {
               );
             })}
           </TableBody>
+          <TableFooter width="large">
+            <TableRow>
+              <TableCell>
+                <Text>Total: {companies.length}</Text>
+              </TableCell>
+            </TableRow>
+          </TableFooter>
         </Table>
       )}
     </React.Fragment>
