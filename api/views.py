@@ -40,8 +40,8 @@ class CompanyView(APIView):
         companies = Company.objects
 
         if 'name' in request.GET:
-            companies = companies.filter(
-                companyname__startswith=request.GET['name'])
+            companies = companies.raw(
+                'SELECT * FROM Company WHERE CompanyName LIKE %s', [request.GET['name'] + '%'])
 
         if 'sector' in request.GET:
             companies = companies.filter(
@@ -69,36 +69,31 @@ class CompanyView(APIView):
         if 'tier' in request.GET:
             company_ids = companies.values_list('companyid')
             satisfied_company_ids = Stocks.objects.filter(
-                companyid__in=company_ids).filter(tier=request.GET['tier'])\
-                .values_list('companyid', flat=True)
+                companyid__in=company_ids).filter(tier=request.GET['tier']).values_list('companyid', flat=True)
             companies = companies.filter(companyid__in=satisfied_company_ids)
 
         if 'revenue_gte' in request.GET:
             company_ids = companies.values_list('companyid')
             satisfied_company_ids = Stocks.objects.filter(
-                companyid__in=company_ids).filter(yoyrevenue__gte=request.GET['revenue_gte'])\
-                .values_list('companyid', flat=True)
+                companyid__in=company_ids).filter(yoyrevenue__gte=request.GET['revenue_gte']).values_list('companyid', flat=True)
             companies = companies.filter(companyid__in=satisfied_company_ids)
 
         if 'ps_lte' in request.GET:
             company_ids = companies.values_list('companyid')
             satisfied_company_ids = Stocks.objects.filter(
-                companyid__in=company_ids).filter(ps__lte=request.GET['ps_lte'])\
-                .values_list('companyid', flat=True)
+                companyid__in=company_ids).filter(ps__lte=request.GET['ps_lte']).values_list('companyid', flat=True)
             companies = companies.filter(companyid__in=satisfied_company_ids)
 
         if 'margins_gte' in request.GET:
             company_ids = companies.values_list('companyid')
             satisfied_company_ids = Stocks.objects.filter(
-                companyid__in=company_ids).filter(grossmargins__gte=request.GET['margins_gte'])\
-                .values_list('companyid', flat=True)
+                companyid__in=company_ids).filter(grossmargins__gte=request.GET['margins_gte']).values_list('companyid', flat=True)
             companies = companies.filter(companyid__in=satisfied_company_ids)
 
         if 'rec_lte' in request.GET:
             company_ids = companies.values_list('companyid')
             satisfied_company_ids = Stocks.objects.filter(
-                companyid__in=company_ids).filter(recommendationmean__lte=request.GET['rec_lte'])\
-                .values_list('companyid', flat=True)
+                companyid__in=company_ids).filter(recommendationmean__lte=request.GET['rec_lte']).values_list('companyid', flat=True)
             companies = companies.filter(companyid__in=satisfied_company_ids)
 
         serializers = CompanySerializer(companies, many=True)
