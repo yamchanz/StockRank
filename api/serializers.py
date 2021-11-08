@@ -34,7 +34,7 @@ class BelongsToSerializer(serializers.ModelSerializer):
     class Meta:
         model = Belongsto
         fields = ('userlogin', 'watchlistid')
-        
+
 
 class WatchlistSerializer(serializers.ModelSerializer):
     class Meta:
@@ -66,7 +66,7 @@ class WatchesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Watches
         fields = ('watchlistid', 'tickersymbol')
-    
+
     def create(self, validated_data):
         watchlistid = validated_data['watchlistid']
         tickersymbol = validated_data['tickersymbol']
@@ -82,7 +82,7 @@ class UsersSerializer(serializers.ModelSerializer):
     class Meta:
         model = Users
         fields = ('userlogin', 'password', 'firstname')
-        extra_kwargs = {'password': {'write_only': True}}
+        # extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
         password = validated_data.pop('password', None)

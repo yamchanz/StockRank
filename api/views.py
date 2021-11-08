@@ -7,6 +7,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth.hashers import make_password
+from django.db import connection
 from .serializers import (StocksSerializer, CompanySerializer, InsideofSerializer,
                           PricesSerializer, UsersSerializer, WatchlistSerializer,
                           BelongsToSerializer, WatchesSerializer)
@@ -53,7 +55,7 @@ class CompanyView(APIView):
             companies = companies.filter(
                 country__startswith=request.GET['country']
             )
-        
+
         if 'marketcap_gte' in request.GET:
             companies = companies.filter(
                 marketcap__gte=request.GET['marketcap_gte']
@@ -106,12 +108,28 @@ class CompanyView(APIView):
 class UsersView(APIView):
     permission_classes = [IsPostOrIsAuthenticated]
 
+    def remove_password_field(self, data: dict):
+        data_without_password = {}
+        data_without_password['userlogin'] = data['userlogin']
+        data_without_password['firstname'] = data['firstname']
+        return data_without_password
+
     # Create a new user
     def post(self, request):
         serializer = UsersSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            with connection.cursor() as cursor:
+                hashed_password = make_password(serializer.data["password"])
+                cursor.execute("INSERT INTO Users (password, last_login,"
+                               " is_superuser, UserLogin, FirstName,"
+                               " is_staff, is_active) VALUES"
+                               " (%s, %s, %s, %s, %s, %s, %s)",
+                               [hashed_password, None, False,
+                                serializer.data["userlogin"],
+                                serializer.data["firstname"], False, True])
+
+            return Response(self.remove_password_field(serializer.data),
+                            status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     # Request current user
@@ -171,7 +189,8 @@ class WatchlistView(APIView):
         watchlist_ids = Belongsto.objects.filter(
             userlogin=user.pk).values_list('watchlistid')
         watchlists = Watchlist.objects.filter(watchlistid__in=watchlist_ids)
-        watchlist_serializer = WatchlistSerializer(instance=watchlists, many=True)
+        watchlist_serializer = WatchlistSerializer(
+            instance=watchlists, many=True)
         return Response(watchlist_serializer.data, status=status.HTTP_200_OK)
 
     # Create a watchlist
@@ -201,13 +220,13 @@ class WatchlistView(APIView):
         watchlist_id = request.data['watchlistid']
         if not watchlist_id:
             return Response(status=status.HTTP_400_BAD_REQUEST)
-        
 
         # TODO: fill body
         print(request.data)
         watchlist = Watchlist.objects.filter(pk=watchlist_id)
         print(watchlist)
-        serializers = WatchlistSerializer(instance=watchlist[0], data=request.data)
+        serializers = WatchlistSerializer(
+            instance=watchlist[0], data=request.data)
         if serializers.is_valid():
             serializers.save()
             return Response(serializers.data, status=status.HTTP_200_OK)
@@ -259,7 +278,7 @@ class WatchesView(APIView):
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
     # Delete an entry
     def delete(self, request):
         user = request.user
@@ -267,7 +286,7 @@ class WatchesView(APIView):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
         # TODO: fill body
-        return Response(status=status.HTTP_200_OK) 
+        return Response(status=status.HTTP_200_OK)
 
 
 class InsideofView(generics.ListAPIView):
