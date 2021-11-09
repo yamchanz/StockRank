@@ -131,7 +131,7 @@ class UsersView(APIView):
     def get(self, request):
         user = request.user
         if not user:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 
         serializers = UsersSerializer(user)
         return Response(serializers.data, status=status.HTTP_200_OK)
@@ -140,7 +140,7 @@ class UsersView(APIView):
     def put(self, request):
         user = request.user
         if not user:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 
         print(request.data)
         serializers = UsersSerializer(
@@ -155,7 +155,7 @@ class UsersView(APIView):
     def delete(self, request):
         user = request.user
         if not user:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 
         op_success = user.delete()
         if op_success:
@@ -179,7 +179,7 @@ class WatchlistView(APIView):
     def get(self, request):
         user = request.user
         if not user:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 
         watchlist_ids = Belongsto.objects.filter(
             userlogin=user.pk).values_list('watchlistid')
@@ -192,7 +192,7 @@ class WatchlistView(APIView):
     def post(self, request):
         user = request.user
         if not user:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 
         data = request.data
         data['datecreated'] = datetime.now()
@@ -211,7 +211,7 @@ class WatchlistView(APIView):
     def put(self, request):
         user = request.user
         if not user:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
         watchlist_id = request.data['watchlistid']
         if not watchlist_id:
             return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -231,7 +231,7 @@ class WatchlistView(APIView):
     def delete(self, request):
         user = request.user
         if not user:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
         watchlist_id = request.data['watchlistid']
         if not watchlist_id:
             return Response(status=status.HTTP_400_BAD_REQUEST)
