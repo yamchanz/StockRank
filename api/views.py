@@ -1,5 +1,6 @@
 from datetime import datetime
 from functools import partial, partialmethod
+from django.contrib.auth.models import User
 from django.db import reset_queries
 from django.shortcuts import render
 from rest_framework import generics, serializers, status
@@ -12,8 +13,9 @@ from django.db import connection
 from .serializers import (StocksSerializer, CompanySerializer, InsideofSerializer,
                           PricesSerializer, UsersSerializer, WatchlistSerializer,
                           BelongsToSerializer, WatchesSerializer)
-from .models import Belongsto, Stocks, Company, Insideof, Prices, Watchlist, Watches
+from .models import Belongsto, Stocks, Company, Insideof, Prices, Watchlist, Watches, Users
 from .permissions import IsPostOrIsAuthenticated
+from .helpers import get_userlogin, get_current_user
 
 
 class StocksView(APIView):
@@ -132,9 +134,13 @@ class UsersView(APIView):
 
     # Request current user
     def get(self, request):
-        user = request.user
-        if not user:
+        if not request.user or "Authorization" not in request.headers:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        user = get_current_user(request.headers["Authorization"])
+
+        if user is None:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
         serializers = UsersSerializer(user)
         return Response(self.remove_password_field(serializers.data),
@@ -146,7 +152,6 @@ class UsersView(APIView):
         if not user:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
-        print(request.data)
         serializers = UsersSerializer(
             instance=user, data=request.data, partial=True)
         if serializers.is_valid():
