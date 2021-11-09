@@ -103,10 +103,13 @@ class CompanyView(APIView):
 class UsersView(APIView):
     permission_classes = [IsPostOrIsAuthenticated]
 
-    def remove_password_field(self, data: dict):
+    def remove_password_field(self, data: dict, new_firstname=None):
         data_without_password = {}
         data_without_password['userlogin'] = data['userlogin']
-        data_without_password['firstname'] = data['firstname']
+        if new_firstname == None:
+            data_without_password['firstname'] = data['firstname']
+        else:
+            data_without_password['firstname'] = new_firstname
         return data_without_password
 
     # Create a new user
@@ -134,7 +137,8 @@ class UsersView(APIView):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
         serializers = UsersSerializer(user)
-        return Response(serializers.data, status=status.HTTP_200_OK)
+        return Response(self.remove_password_field(serializers.data),
+                        status=status.HTTP_200_OK)
 
     # Update an existing user
     def put(self, request):
@@ -146,8 +150,25 @@ class UsersView(APIView):
         serializers = UsersSerializer(
             instance=user, data=request.data, partial=True)
         if serializers.is_valid():
-            serializers.save()
-            return Response(serializers.data, status=status.HTTP_200_OK)
+            new_firstname = None
+            if "firstname" in request.data:
+                new_firstname = request.data["firstname"]
+                with connection.cursor() as cursor:
+                    cursor.execute("UPDATE Users SET firstname=%s"
+                                   "WHERE userlogin=%s",
+                                   [request.data["firstname"],
+                                    serializers.data["userlogin"]])
+
+            if "password" in request.data:
+                with connection.cursor() as cursor:
+                    cursor.execute("UPDATE Users SET password=%s"
+                                   "WHERE userlogin=%s",
+                                   [make_password(request.data["password"]),
+                                    serializers.data["userlogin"]])
+
+            return Response(self.remove_password_field(serializers.data,
+                                                       new_firstname),
+                            status=status.HTTP_200_OK)
 
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -157,11 +178,27 @@ class UsersView(APIView):
         if not user:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
-        op_success = user.delete()
-        if op_success:
-            return Response(status=status.HTTP_200_OK)
+        try:
+            with connection.cursor() as cursor:
 
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+                # delete tokens first
+                cursor.execute("SELECT id FROM token_blacklist_outstandingtoken WHERE user_id=%s",
+                               [request.user.get_username()])
+                token_id = cursor.fetchone()
+                while token_id is not None:
+                    cursor.execute("DELETE FROM token_blacklist_blacklistedtoken WHERE token_id=%s",
+                                   [token_id])
+                    token_id = cursor.fetchone()
+                cursor.execute("DELETE FROM token_blacklist_outstandingtoken WHERE user_id=%s",
+                               [request.user.get_username()])
+
+                # delete account
+                cursor.execute("DELETE FROM Users WHERE userlogin=%s",
+                               [request.user.get_username()])
+                return Response(status=status.HTTP_200_OK)
+        except Exception as e:
+            print(e)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 class WatchlistView(APIView):
