@@ -253,7 +253,6 @@ class WatchlistView(APIView):
         if not watchlist_id:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        # TODO: fill body
         print(request.data)
         watchlist = Watchlist.objects.filter(pk=watchlist_id)
         print(watchlist)
@@ -278,8 +277,6 @@ class WatchlistView(APIView):
             return Response(status=status.HTTP_200_OK)
 
         return Response(status=status.HTTP_400_BAD_REQUEST)
-
-        # TODO: fill body
 
 
 class WatchesView(APIView):
