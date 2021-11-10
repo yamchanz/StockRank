@@ -40,63 +40,119 @@ class CompanyView(APIView):
 
     def get(self, request):
         companies = Company.objects
+        query = 'SELECT * FROM Company' 
+        first = True
 
         if 'name' in request.GET:
-            companies = companies.raw(
-                'SELECT * FROM Company WHERE CompanyName LIKE %s', [request.GET['name'] + '%'])
+            #companies = companies.raw(
+            #    'SELECT * FROM Company WHERE CompanyName LIKE %s', [request.GET['name'] + '%'])
+            query += " WHERE CompanyName LIKE '{}%%'".format(request.GET['name'])
+            first = False
 
         if 'sector' in request.GET:
-            companies = companies.filter(
-                sector__startswith=request.GET['sector'])
+            #companies = companies.filter(
+            #    sector__startswith=request.GET['sector'])
+            if first is False:
+                query += " AND Sector LIKE '{}%%'".format(request.GET['sector'])
+            else:
+                query += " WHERE Sector LIKE '{}%%'".format(request.GET['sector'])
+                first = False
 
         if 'industry' in request.GET:
-            companies = companies.filter(
-                industry__startswith=request.GET['industry'])
+            #companies = companies.filter(
+            #    industry__startswith=request.GET['industry'])
+            if first is False:
+                query += " AND Industry LIKE '{}%%'".format(request.GET['industry'])
+            else:
+                query += " WHERE Industry LIKE '{}%%'".format(request.GET['industry'])
+                first = False
 
         if 'country' in request.GET:
-            companies = companies.filter(
-                country__startswith=request.GET['country']
-            )
+            #companies = companies.filter(
+            #    country__startswith=request.GET['country']
+            #)
+            if first is False:
+                query += " AND Country LIKE '{}%%'".format(request.GET['country'])
+            else:
+                query += " WHERE Country LIKE '{}%%'".format(request.GET['country'])
+                first = False
 
         if 'marketcap_gte' in request.GET:
-            companies = companies.filter(
-                marketcap__gte=request.GET['marketcap_gte']
-            )
+            #companies = companies.filter(
+            #    marketcap__gte=request.GET['marketcap_gte']
+            #)
+            if first is False:
+                query += " AND MarketCap > {}".format(request.GET['marketcap_gte'])
+            else:
+                query += " WHERE MarketCap > {}".format(request.GET['marketcap_gte'])
+                first = False
 
         if 'marketcap_lte' in request.GET:
-            companies = companies.filter(
-                marketcap__lte=request.GET['marketcap_lte']
-            )
+            #companies = companies.filter(
+            #    marketcap__lte=request.GET['marketcap_lte']
+            #)
+            if first is False:
+                query += " AND MarketCap < {}".format(request.GET['marketcap_lte'])
+            else:
+                query += " WHERE MarketCap < {}".format(request.GET['marketcap_lte'])
+                first = False
 
         if 'tier' in request.GET:
-            company_ids = companies.values_list('companyid')
-            satisfied_company_ids = Stocks.objects.filter(
-                companyid__in=company_ids).filter(tier=request.GET['tier']).values_list('companyid', flat=True)
-            companies = companies.filter(companyid__in=satisfied_company_ids)
+            #company_ids = companies.values_list('companyid')
+            #satisfied_company_ids = Stocks.objects.filter(
+            #    companyid__in=company_ids).filter(tier=request.GET['tier']).values_list('companyid', flat=True)
+            #companies = companies.filter(companyid__in=satisfied_company_ids)
+            if first is False:
+                query += " AND CompanyID IN (SELECT CompanyID FROM Company NATURAL JOIN Stocks WHERE Tier = '{}')".format(request.GET['tier'])
+            else:
+                query += " WHERE CompanyID IN (SELECT CompanyID FROM Company NATURAL JOIN Stocks WHERE Tier = '{}')".format(request.GET['tier'])
+                first = False
 
         if 'revenue_gte' in request.GET:
-            company_ids = companies.values_list('companyid')
-            satisfied_company_ids = Stocks.objects.filter(
-                companyid__in=company_ids).filter(yoyrevenue__gte=request.GET['revenue_gte']).values_list('companyid', flat=True)
-            companies = companies.filter(companyid__in=satisfied_company_ids)
+            #company_ids = companies.values_list('companyid')
+            #satisfied_company_ids = Stocks.objects.filter(
+            #    companyid__in=company_ids).filter(yoyrevenue__gte=request.GET['revenue_gte']).values_list('companyid', flat=True)
+            #companies = companies.filter(companyid__in=satisfied_company_ids)
+            if first is False:
+                query += " AND CompanyID IN (SELECT CompanyID FROM Company NATURAL JOIN Stocks WHERE YoYRevenue > {})".format(request.GET['revenue_gte'])
+            else:
+                query += " WHERE CompanyID IN (SELECT CompanyID FROM Company NATURAL JOIN Stocks WHERE YoYRevenue > {})".format(request.GET['revenue_gte'])
+                first = False
 
         if 'ps_lte' in request.GET:
-            company_ids = companies.values_list('companyid')
-            satisfied_company_ids = Stocks.objects.filter(
-                companyid__in=company_ids).filter(ps__lte=request.GET['ps_lte']).values_list('companyid', flat=True)
-            companies = companies.filter(companyid__in=satisfied_company_ids)
+            #company_ids = companies.values_list('companyid')
+            #satisfied_company_ids = Stocks.objects.filter(
+            #    companyid__in=company_ids).filter(ps__lte=request.GET['ps_lte']).values_list('companyid', flat=True)
+            #companies = companies.filter(companyid__in=satisfied_company_ids)
+            if first is False:
+                query += " AND CompanyID IN (SELECT CompanyID FROM Company NATURAL JOIN Stocks WHERE PS < {})".format(request.GET['ps_lte'])
+            else:
+                query += " WHERE CompanyID IN (SELECT CompanyID FROM Company NATURAL JOIN Stocks WHERE PS < {})".format(request.GET['ps_lte'])
+                first = False
 
         if 'margins_gte' in request.GET:
-            company_ids = companies.values_list('companyid')
-            satisfied_company_ids = Stocks.objects.filter(
-                companyid__in=company_ids).filter(grossmargins__gte=request.GET['margins_gte']).values_list('companyid', flat=True)
-            companies = companies.filter(companyid__in=satisfied_company_ids)
+            #company_ids = companies.values_list('companyid')
+            #satisfied_company_ids = Stocks.objects.filter(
+            #    companyid__in=company_ids).filter(grossmargins__gte=request.GET['margins_gte']).values_list('companyid', flat=True)
+            #companies = companies.filter(companyid__in=satisfied_company_ids)
+            if first is False:
+                query += " AND CompanyID IN (SELECT CompanyID FROM Company NATURAL JOIN Stocks WHERE GrossMargins > {})".format(request.GET['margins_gte'])
+            else:
+                query += " WHERE CompanyID IN (SELECT CompanyID FROM Company NATURAL JOIN Stocks WHERE GrossMargins > {})".format(request.GET['margins_gte'])
+                first = False
 
         if 'rec_lte' in request.GET:
-            company_ids = companies.values_list('companyid')
-            satisfied_company_ids = Stocks.objects.filter(
-                companyid__in=company_ids).filter(recommendationmean__lte=request.GET['rec_lte']).values_list('companyid', flat=True)
-            companies = companies.filter(companyid__in=satisfied_company_ids)
+            #company_ids = companies.values_list('companyid')
+            #satisfied_company_ids = Stocks.objects.filter(
+            #    companyid__in=company_ids).filter(recommendationmean__lte=request.GET['rec_lte']).values_list('companyid', flat=True)
+            #companies = companies.filter(companyid__in=satisfied_company_ids)
+            if first is False:
+                query += " AND CompanyID IN (SELECT CompanyID FROM Company NATURAL JOIN Stocks WHERE RecommendationMean < {})".format(request.GET['rec_lte'])
+            else:
+                query += " WHERE CompanyID IN (SELECT CompanyID FROM Company NATURAL JOIN Stocks WHERE RecommendationMean < {})".format(request.GET['rec_lte'])
+                first = False
+        
+        companies = companies.raw(query)
 
         serializers = CompanySerializer(companies, many=True)
         return Response(serializers.data, status=status.HTTP_200_OK)
