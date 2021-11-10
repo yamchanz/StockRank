@@ -38,10 +38,40 @@ class CompanyView(APIView):
     Example: http://127.0.0.1:8000/api/company/?name=A&marketcap_gte=79400&tier=B
     """
 
+    def run_advanced_query_1(self, tier):
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT COUNT(Tier)
+                FROM Company NATURAL JOIN Stocks
+                WHERE Tier = %s
+                GROUP BY Tier
+                """, [tier])
+
+            res = cursor.fetchone()
+            if res == None:
+                return -1
+            else:
+                return res[0]
+
+    def run_advanced_query_2(self, tier, name):
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                  SELECT COUNT(Tier)
+                  FROM Company NATURAL JOIN Stocks
+                  WHERE Tier = %s AND CompanyName LIKE %s
+                  GROUP BY (Tier)         
+                  """, [tier, name])
+            res = cursor.fetchone()
+            if res == None:
+                return -1
+            else:
+                return res[0]
+
     def get(self, request):
         companies = Company.objects
         query = 'SELECT * FROM Company' 
         first = True
+        tier_count = -1
 
         if 'name' in request.GET:
             #companies = companies.raw(
@@ -108,6 +138,17 @@ class CompanyView(APIView):
                 query += " WHERE CompanyID IN (SELECT CompanyID FROM Company NATURAL JOIN Stocks WHERE Tier = '{}')".format(request.GET['tier'])
                 first = False
 
+            if 'name' in request.GET:
+                tier_count = self.run_advanced_query_2(
+                    request.GET["tier"], request.GET["name"])
+            else:
+                tier_count = self.run_advanced_query_1(request.GET["tier"])
+            if hasattr(companies, 'values_list'):
+                company_ids = companies.values_list('companyid')
+                satisfied_company_ids = Stocks.objects.filter(
+                    companyid__in=company_ids).filter(tier=request.GET['tier']).values_list('companyid', flat=True)
+                companies = companies.filter(companyid__in=satisfied_company_ids)
+
         if 'revenue_gte' in request.GET:
             #company_ids = companies.values_list('companyid')
             #satisfied_company_ids = Stocks.objects.filter(
@@ -154,8 +195,11 @@ class CompanyView(APIView):
         
         companies = companies.raw(query)
 
-        serializers = CompanySerializer(companies, many=True)
-        return Response(serializers.data, status=status.HTTP_200_OK)
+        serializer = CompanySerializer(companies, many=True)
+
+        data = {"count": tier_count}
+        data["entries"] = serializer.data
+        return Response(data, status=status.HTTP_200_OK)
 
 
 class UsersView(APIView):
