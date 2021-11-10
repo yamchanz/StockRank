@@ -47,7 +47,8 @@ class CompanyView(APIView):
                 GROUP BY Tier
                 """, [tier])
 
-            return cursor.fetchone()
+            return cursor.fetchone()[0]
+
     def run_advanced_query_2(self, tier, name):
         with connection.cursor() as cursor:
             cursor.execute("""
@@ -56,7 +57,7 @@ class CompanyView(APIView):
                   WHERE Tier = %s AND CompanyName LIKE %s
                   GROUP BY (Tier)         
                   """, [tier, name])
-            return cursor.fetchone()
+            return cursor.fetchone()[0]
 
     def get(self, request):
         companies = Company.objects
@@ -89,10 +90,10 @@ class CompanyView(APIView):
                 marketcap__lte=request.GET['marketcap_lte']
             )
 
-      
         if 'tier' in request.GET:
             if 'name' in request.GET:
-                tier_count = self.run_advanced_query_2(request.GET["tier"], request.GET["name"])
+                tier_count = self.run_advanced_query_2(
+                    request.GET["tier"], request.GET["name"])
             else:
                 tier_count = self.run_advanced_query_1(request.GET["tier"])
             if hasattr(companies, 'values_list'):
@@ -126,12 +127,10 @@ class CompanyView(APIView):
             companies = companies.filter(companyid__in=satisfied_company_ids)
 
         serializer = CompanySerializer(companies, many=True)
-        if tier_count != -1:
-            data = {"count": tier_count}
-            data.update(serializer.data)
-            return Response(data, status=status.HTTP_200_OK)
-        else:
-            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        data = {"count": tier_count}
+        data["entries"] = serializer.data
+        return Response(data, status=status.HTTP_200_OK)
 
 
 class UsersView(APIView):
