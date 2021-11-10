@@ -48,6 +48,15 @@ class CompanyView(APIView):
                 """, [tier])
 
             return cursor.fetchone()
+    def run_advanced_query_2(self, tier, name):
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                  SELECT COUNT(Tier)
+                  FROM Company NATURAL JOIN Stocks
+                  WHERE Tier = %s AND CompanyName LIKE %s
+                  GROUP BY (Tier)         
+                  """, [tier, name])
+            return cursor.fetchone()
 
     def get(self, request):
         companies = Company.objects
