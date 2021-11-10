@@ -89,8 +89,12 @@ class CompanyView(APIView):
                 marketcap__lte=request.GET['marketcap_lte']
             )
 
+      
         if 'tier' in request.GET:
-            tier_count = self.run_advanced_query_1(request.GET["tier"])
+            if 'name' in request.GET:
+                tier_count = self.run_advanced_query_2(request.GET["tier"], request.GET["name"])
+            else:
+                tier_count = self.run_advanced_query_1(request.GET["tier"])
             company_ids = companies.values_list('companyid')
             satisfied_company_ids = Stocks.objects.filter(
                 companyid__in=company_ids).filter(tier=request.GET['tier']).values_list('companyid', flat=True)
