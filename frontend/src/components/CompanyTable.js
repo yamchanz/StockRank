@@ -28,7 +28,7 @@ const CompanyTable = React.memo(({ companies }) => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {companies.map((company, idx) => {
+            {companies["entries"].map((company, idx) => {
               return (
                 <TableRow key={idx}>
                   <TableCell scope="row">
@@ -43,7 +43,12 @@ const CompanyTable = React.memo(({ companies }) => {
           <TableFooter width="large">
             <TableRow>
               <TableCell>
-                <Text>Total: {companies.length}</Text>
+                <Text>
+                  Total:{" "}
+                  {companies["count"] === -1
+                    ? companies["entries"].length
+                    : companies["count"]}
+                </Text>
               </TableCell>
             </TableRow>
           </TableFooter>
@@ -54,11 +59,7 @@ const CompanyTable = React.memo(({ companies }) => {
 });
 
 const isEmpty = (data) => {
-  return (
-    data === undefined ||
-    Object.keys(data).length === 0 ||
-    Object.getPrototypeOf(data) === Object.prototype
-  );
+  return data === undefined || Object.keys(data).length === 0;
 };
 
 export { CompanyTable };
