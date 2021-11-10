@@ -38,6 +38,17 @@ class CompanyView(APIView):
     Example: http://127.0.0.1:8000/api/company/?name=A&marketcap_gte=79400&tier=B
     """
 
+    def run_advanced_query_1(self, tier):
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT COUNT(Tier)
+                FROM Company NATURAL JOIN Stocks
+                WHERE Tier = %s
+                GROUP BY Tier
+                """, [tier])
+
+            return cursor.fetchone()
+
     def get(self, request):
         companies = Company.objects
 
@@ -69,6 +80,7 @@ class CompanyView(APIView):
             )
 
         if 'tier' in request.GET:
+            print(self.run_advanced_query_1(request.GET["tier"]))
             company_ids = companies.values_list('companyid')
             satisfied_company_ids = Stocks.objects.filter(
                 companyid__in=company_ids).filter(tier=request.GET['tier']).values_list('companyid', flat=True)
