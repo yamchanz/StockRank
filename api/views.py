@@ -51,6 +51,7 @@ class CompanyView(APIView):
 
     def get(self, request):
         companies = Company.objects
+        tier_count = -1
 
         if 'name' in request.GET:
             companies = companies.raw(
@@ -80,7 +81,7 @@ class CompanyView(APIView):
             )
 
         if 'tier' in request.GET:
-            print(self.run_advanced_query_1(request.GET["tier"]))
+            tier_count = self.run_advanced_query_1(request.GET["tier"])
             company_ids = companies.values_list('companyid')
             satisfied_company_ids = Stocks.objects.filter(
                 companyid__in=company_ids).filter(tier=request.GET['tier']).values_list('companyid', flat=True)
@@ -110,8 +111,13 @@ class CompanyView(APIView):
                 companyid__in=company_ids).filter(recommendationmean__lte=request.GET['rec_lte']).values_list('companyid', flat=True)
             companies = companies.filter(companyid__in=satisfied_company_ids)
 
-        serializers = CompanySerializer(companies, many=True)
-        return Response(serializers.data, status=status.HTTP_200_OK)
+        serializer = CompanySerializer(companies, many=True)
+        if tier_count != -1:
+            data = {"count": tier_count}
+            data.update(serializer.data)
+            return Response(data, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class UsersView(APIView):
