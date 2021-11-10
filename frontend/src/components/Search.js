@@ -10,7 +10,7 @@ const Search = React.memo(() => {
   const [country, setCountry] = useState("");
   const [marketCapGTE, setMarketCapGTE] = useState();
   const [marketCapLTE, setMarketCapLTE] = useState();
-  const [tier, setTier] = useState("");
+  const [tier, setTier] = useState("A");
   const [searchResult, setSearchResult] = useState();
 
   const TIER_OPTIONS = [
@@ -72,6 +72,7 @@ const Search = React.memo(() => {
       marketCapGTE,
       marketCapLTE
     );
+
     axios.get("company/?" + searchURL).then((res) => {
       setSearchResult(res.data);
     });
