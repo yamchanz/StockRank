@@ -1,8 +1,11 @@
 import { axiosInstance as axios } from "../axios";
 import React, { useState } from "react";
+import { useHistory } from "react-router-dom";
 import { TextInput, Text, Box, Button, Main, Heading } from "grommet";
 
 function SignUp() {
+  const history = useHistory();
+
   const [accountName, setAccountName] = useState("");
   const [password, setPassWord] = useState("");
   const [firstName, setFirstName] = useState("");
@@ -26,7 +29,9 @@ function SignUp() {
       firstname: firstName,
     };
 
-    axios.post("users/", user);
+    axios.post("users/", user).then((_res) => {
+      history.push("/login");
+    });
   };
 
   return (

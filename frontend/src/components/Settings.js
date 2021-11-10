@@ -71,6 +71,10 @@ function Profile() {
 
   const handleDeleteAccount = () => {
     axios.delete("users/").then((_res) => {
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
+
+      axios.defaults.headers["Authorization"] = null;
       console.log("success");
       history.push("/");
     });
