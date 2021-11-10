@@ -95,10 +95,11 @@ class CompanyView(APIView):
                 tier_count = self.run_advanced_query_2(request.GET["tier"], request.GET["name"])
             else:
                 tier_count = self.run_advanced_query_1(request.GET["tier"])
-            company_ids = companies.values_list('companyid')
-            satisfied_company_ids = Stocks.objects.filter(
-                companyid__in=company_ids).filter(tier=request.GET['tier']).values_list('companyid', flat=True)
-            companies = companies.filter(companyid__in=satisfied_company_ids)
+            if hasattr(companies, 'values_list'):
+                company_ids = companies.values_list('companyid')
+                satisfied_company_ids = Stocks.objects.filter(
+                    companyid__in=company_ids).filter(tier=request.GET['tier']).values_list('companyid', flat=True)
+                companies = companies.filter(companyid__in=satisfied_company_ids)
 
         if 'revenue_gte' in request.GET:
             company_ids = companies.values_list('companyid')
