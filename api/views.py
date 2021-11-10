@@ -138,10 +138,10 @@ class CompanyView(APIView):
                 query += " WHERE CompanyID IN (SELECT CompanyID FROM Company NATURAL JOIN Stocks WHERE Tier = '{}')".format(request.GET['tier'])
                 first = False
 
-            if 'name' in request.GET:
+            if 'name' in request.GET and len(request.GET) == 2:
                 tier_count = self.run_advanced_query_2(
                     request.GET["tier"], request.GET["name"])
-            else:
+            elif len(request.GET) == 1:
                 tier_count = self.run_advanced_query_1(request.GET["tier"])
             if hasattr(companies, 'values_list'):
                 company_ids = companies.values_list('companyid')
