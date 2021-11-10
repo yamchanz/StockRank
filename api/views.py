@@ -47,7 +47,11 @@ class CompanyView(APIView):
                 GROUP BY Tier
                 """, [tier])
 
-            return cursor.fetchone()[0]
+            res = cursor.fetchone()
+            if res == None:
+                return -1
+            else:
+                return res[0]
 
     def run_advanced_query_2(self, tier, name):
         with connection.cursor() as cursor:
@@ -57,7 +61,11 @@ class CompanyView(APIView):
                   WHERE Tier = %s AND CompanyName LIKE %s
                   GROUP BY (Tier)         
                   """, [tier, name])
-            return cursor.fetchone()[0]
+            res = cursor.fetchone()
+            if res == None:
+                return -1
+            else:
+                return res[0]
 
     def get(self, request):
         companies = Company.objects
