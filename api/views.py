@@ -28,6 +28,9 @@ class StocksView(APIView):
 
         if "tier" in request.GET:
             stocks = stocks.filter(tier=request.GET["tier"])
+        
+        if "tickersymbol" in request.GET:
+            stocks = stocks.filter(tickersymbol=request.GET["tickersymbol"])
 
         serializers = StocksSerializer(stocks, many=True)
         return Response(serializers.data, status=status.HTTP_200_OK)
@@ -322,13 +325,17 @@ class WatchlistView(APIView):
         user = request.user
         if not user:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
-
-        watchlist_ids = Belongsto.objects.filter(
-            userlogin=user.pk).values_list('watchlistid')
-        watchlists = Watchlist.objects.filter(watchlistid__in=watchlist_ids)
-        watchlist_serializer = WatchlistSerializer(
-            instance=watchlists, many=True)
-        return Response(watchlist_serializer.data, status=status.HTTP_200_OK)
+        if 'watchlistid' in request.GET:
+            watchlist = Watchlist.objects.get(pk=request.GET['watchlistid'])
+            watchlist_serializer = WatchlistSerializer(instance=watchlist)
+            return Response(watchlist_serializer.data, status=status.HTTP_200_OK)
+        else:
+            watchlist_ids = Belongsto.objects.filter(
+                userlogin=user.pk).values_list('watchlistid')
+            watchlists = Watchlist.objects.filter(watchlistid__in=watchlist_ids)
+            watchlist_serializer = WatchlistSerializer(
+                instance=watchlists, many=True)
+            return Response(watchlist_serializer.data, status=status.HTTP_200_OK)
 
     # Create a watchlist
     def post(self, request):
@@ -408,6 +415,8 @@ class WatchesView(APIView):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
         serializer = WatchesSerializer(data=request.data)
+        print(request.data)
+        print(serializer.is_valid())
         if serializer.is_valid():
             serializer.save()
 

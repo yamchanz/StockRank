@@ -21,8 +21,8 @@ const Watchlist = memo(() => {
       .catch((err) => {
         if (err.response.status === 401) {
           setAuth(false);
-          setLoading(false);
         }
+        setLoading(false);
       });
   }, []);
 

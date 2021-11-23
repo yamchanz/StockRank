@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Box, Select, TextInput, Text, Button } from "grommet";
 import { CompanyTable } from "./CompanyTable";
 
-const Search = React.memo(() => {
+const SearchCompany = React.memo(() => {
   const [companyName, setCompanyName] = useState("");
   const [sector, setSector] = useState("");
   const [industry, setIndustry] = useState("");
@@ -83,7 +83,7 @@ const Search = React.memo(() => {
       <Box gap="small">
         <Text>Company Name</Text>
         <TextInput
-          placeholder="Starting with or Exact"
+          placeholder="Starts with or Exact"
           value={companyName}
           onChange={companyNameOnChangeHandler}
         />
@@ -197,4 +197,4 @@ const createSearchURL = (
   return searchURL;
 };
 
-export { Search };
+export { SearchCompany };

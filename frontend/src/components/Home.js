@@ -1,8 +1,8 @@
 import React from "react";
-import { Search } from "./Search";
+import { SearchCompany } from "./SearchCompany";
 
 function Home() {
-  return <Search></Search>;
+  return <SearchCompany></SearchCompany>;
 }
 
 export { Home };
