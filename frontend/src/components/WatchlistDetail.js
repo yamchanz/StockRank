@@ -1,6 +1,9 @@
-import { axiosInstance as axios } from "../axios";
-import React, { useState, useEffect, memo } from "react";
+import { useParams } from "react-router-dom";
+import React, { memo } from "react";
 
-const WatchListDetail = memo((watchlistID) => {});
+const WatchListDetail = memo(() => {
+  let { watchlistId } = useParams();
+  return <div>{watchlistId}</div>;
+});
 
 export { WatchListDetail };

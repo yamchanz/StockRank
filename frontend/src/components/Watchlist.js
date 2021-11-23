@@ -1,9 +1,10 @@
 import { axiosInstance as axios } from "../axios";
 import React, { useState, useEffect, memo } from "react";
-import { Link } from "react-router-dom";
+import { useHistory, Link } from "react-router-dom";
 import { Box, Button, List, TextInput, Heading, Main, Text } from "grommet";
 
 const Watchlist = memo(() => {
+  const history = useHistory();
   const [watchlists, setWatchlists] = useState([]);
   const [newWatchlistName, setNewWatchlistName] = useState("");
   const [auth, setAuth] = useState(false);
@@ -44,17 +45,18 @@ const Watchlist = memo(() => {
 
   /**
    * @abstract Handler returns a function that handles view button click
-   * @param {int} watchlistID
+   * @param {int} watchlistId
    * @returns
    */
-  const onViewClickHandler = (watchlistID) => () => {
-    console.log(watchlistID);
+  const onViewClickHandler = (watchlistId) => () => {
+    console.log(watchlistId);
+    history.push("/watchlist/" + watchlistId);
   };
 
-  const onDeleteClickHandler = (watchlistID, index) => () => {
-    console.log(watchlistID);
+  const onDeleteClickHandler = (watchlistId, index) => () => {
+    console.log(watchlistId);
     axios
-      .delete("watchlist/", { data: { watchlistid: watchlistID } })
+      .delete("watchlist/", { data: { watchlistId: watchlistId } })
       .then((_res) => {
         let nextWatchlists = [...watchlists];
         nextWatchlists.splice(index, 1);
@@ -80,7 +82,7 @@ const Watchlist = memo(() => {
       </Box>
       <List
         primaryKey={(item) => (
-          <Box key={item.watchlistid} direction="row" gap="large">
+          <Box key={item.watchlistId} direction="row" gap="large">
             <Text weight="bold">{item.watchlistname}</Text>
             <Text weight="lighter">{item.datecreated}</Text>
           </Box>
