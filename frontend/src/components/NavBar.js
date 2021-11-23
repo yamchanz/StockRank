@@ -27,6 +27,10 @@ function NavBar() {
     history.push("/settings");
   };
 
+  const goWatchlistPageHandler = () => {
+    history.push("/watchlist");
+  };
+
   // check auth every time address changes
   useEffect(() => {
     setAuth(localStorage.getItem("access_token") !== null);
@@ -37,6 +41,7 @@ function NavBar() {
     goLoginPageHandler,
     goLogoutPageHandler,
     goSettingsPageHandler,
+    goWatchlistPageHandler,
     auth
   );
 
@@ -58,12 +63,14 @@ const determineOptions = (
   goLoginPageHandler,
   goLogoutPageHandler,
   goSettingsPageHandler,
+  goWatchlistPageHandler,
   auth
 ) => {
   if (auth) {
     return [
-      { label: "Logout", onClick: goLogoutPageHandler },
+      { label: "Watchlist", onClick: goWatchlistPageHandler },
       { label: "Settings", onClick: goSettingsPageHandler },
+      { label: "Logout", onClick: goLogoutPageHandler },
     ];
   } else {
     return [

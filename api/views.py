@@ -373,6 +373,7 @@ class WatchlistView(APIView):
         user = request.user
         if not user:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
+        print(request.data)
         watchlist_id = request.data['watchlistid']
         if not watchlist_id:
             return Response(status=status.HTTP_400_BAD_REQUEST)

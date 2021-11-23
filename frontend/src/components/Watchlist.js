@@ -1,24 +1,123 @@
 import { axiosInstance as axios } from "../axios";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, memo } from "react";
+import { Link } from "react-router-dom";
+import { Box, Button, List, TextInput, Heading, Main, Text } from "grommet";
 
-function Watchlist() {
-  const [watchlist, setWatchlist] = useState("");
+const Watchlist = memo(() => {
+  const [watchlists, setWatchlists] = useState([]);
+  const [newWatchlistName, setNewWatchlistName] = useState("");
+  const [auth, setAuth] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     axios
       .get("watchlist/")
       .then((res) => {
-        console.log(res);
-        setWatchlist(res.data["protected"]);
+        setWatchlists(res.data);
+        setAuth(true);
+        setLoading(false);
       })
       .catch((err) => {
         if (err.response.status === 401) {
-          setWatchlist("You are unauthorized");
+          setAuth(false);
+          setLoading(false);
         }
       });
   }, []);
 
-  return <div> {watchlist} </div>;
-}
+  const onNewWatchlistNameChangeHandler = (event) => {
+    setNewWatchlistName(event.target.value);
+  };
+
+  const onCreateClickHandler = () => {
+    if (newWatchlistName.length > 0) {
+      axios
+        .post("watchlist/", { watchlistname: newWatchlistName })
+        .then((res) => {
+          let nextWatchlists = [...watchlists];
+          nextWatchlists.unshift(res.data);
+          setWatchlists(nextWatchlists);
+          setNewWatchlistName("");
+        });
+    }
+  };
+
+  /**
+   * @abstract Handler returns a function that handles view button click
+   * @param {int} watchlistID
+   * @returns
+   */
+  const onViewClickHandler = (watchlistID) => () => {
+    console.log(watchlistID);
+  };
+
+  const onDeleteClickHandler = (watchlistID, index) => () => {
+    console.log(watchlistID);
+    axios
+      .delete("watchlist/", { data: { watchlistid: watchlistID } })
+      .then((_res) => {
+        let nextWatchlists = [...watchlists];
+        nextWatchlists.splice(index, 1);
+        setWatchlists(nextWatchlists);
+      });
+  };
+
+  const list = (
+    <React.Fragment>
+      <Heading>Your Watchlists</Heading>
+      <Box
+        margin={{ bottom: "medium" }}
+        direction="row"
+        align="center"
+        gap="medium"
+      >
+        <TextInput
+          placeholder="Type watchlist name here"
+          value={newWatchlistName}
+          onChange={onNewWatchlistNameChangeHandler}
+        ></TextInput>
+        <Button primary label="Create" onClick={onCreateClickHandler} />
+      </Box>
+      <List
+        primaryKey={(item) => (
+          <Box key={item.watchlistid} direction="row" gap="large">
+            <Text weight="bold">{item.watchlistname}</Text>
+            <Text weight="lighter">{item.datecreated}</Text>
+          </Box>
+        )}
+        data={watchlists}
+        action={(item, index) => {
+          return (
+            <Box direction="row" gap="medium" key="item.watchlistid">
+              <Button
+                primary
+                label="View"
+                onClick={onViewClickHandler(item.watchlistid)}
+              />
+              <Button
+                secondary
+                label="Delete"
+                onClick={onDeleteClickHandler(item.watchlistid, index)}
+              />
+            </Box>
+          );
+        }}
+      />
+    </React.Fragment>
+  );
+
+  const unauthorized = (
+    <Text>
+      Please <Link to="/login"> login </Link> first
+    </Text>
+  );
+
+  let content = null;
+  if (!loading) {
+    content = auth ? list : unauthorized;
+  }
+
+  return <Main pad={{ left: "large", right: "large" }}>{content}</Main>;
+});
 
 export { Watchlist };
