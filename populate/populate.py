@@ -160,6 +160,32 @@ def insertIntoCompany(company_id, company_name, sector, industry, country, marke
             print("MySQL connection is closed")
 
 
+def updateIntoCompany(company_id, company_name, sector, industry, country, market_cap, description, logo):
+    try:
+        connection = mysql.connector.connect(host='',
+                                             database='Stocks',
+                                             user='root',
+                                             password='')
+        cursor = connection.cursor()
+        mySql_update_query = """UPDATE Company
+                                SET MarketCap = %s
+                                WHERE CompanyID = %s """
+
+        record = (market_cap, company_id)
+        cursor.execute(mySql_update_query, record)
+        connection.commit()
+        print("Record updated successfully in Company table")
+
+    except mysql.connector.Error as error:
+        print("Failed to insert into MySQL table {}".format(error))
+
+    finally:
+        if connection.is_connected():
+            cursor.close()
+            connection.close()
+            print("MySQL connection is closed")
+
+
 def insertIntoStocks(ticker, company_id, rank, revenue_growth, price_sales, gross_margins,
                      total_cash, total_debt, ebitda, recommendation_mean):
     try:
@@ -176,6 +202,34 @@ def insertIntoStocks(ticker, company_id, rank, revenue_growth, price_sales, gros
         cursor.execute(mySql_insert_query, record)
         connection.commit()
         print("Record inserted successfully into Stocks table")
+
+    except mysql.connector.Error as error:
+        print("Failed to insert into MySQL table {}".format(error))
+
+    finally:
+        if connection.is_connected():
+            cursor.close()
+            connection.close()
+            print("MySQL connection is closed")
+
+
+def updateIntoStocks(ticker, company_id, rank, revenue_growth, price_sales, gross_margins,
+                     total_cash, total_debt, ebitda, recommendation_mean):
+    try:
+        connection = mysql.connector.connect(host='',
+                                             database='Stocks',
+                                             user='root',
+                                             password='')
+        cursor = connection.cursor()
+        mySql_update_query = """UPDATE Stocks
+                                SET TickerSymbol = %s, Tier = %s, YoYRevenue = %s, PS = %s, GrossMargins = %s, TotalCash = %s, TotalDebt = %s, EBITDA = %s, RecommendationMean = %s
+                                WHERE CompanyID = %s """
+
+        record = (ticker, rank, revenue_growth, price_sales, gross_margins, total_cash, total_debt, ebitda,
+                  recommendation_mean, company_id)
+        cursor.execute(mySql_update_query, record)
+        connection.commit()
+        print("Record updated successfully in Stocks table")
 
     except mysql.connector.Error as error:
         print("Failed to insert into MySQL table {}".format(error))
@@ -211,19 +265,10 @@ def insertRanks():
     insertIntoRanking('NA', -1000, 'N/A')
 
 
-def getRank(stock, yoy_revenue_growth, ps, margins, cash, debt, ebitda, rec):
-    rank: str = 'NA'
-    # no revenue information, not able to give rank
-    if 'Total Revenue' not in stock.financials.index:
-        return rank
-    rev = stock.financials.loc['Total Revenue', ].array[::-1].reshape(-1, 1)
-    # if some revenue data missing, not able to give rank
-    if rev.shape != (4, 1) or rev[0, 0] == 0 or rev[1, 0] == 0 or rev[2, 0] == 0 or rev[3, 0] == 0:
-        return rank
-
+def getEstimatedRevenueGrowth(rev, qrev, yoy_growth):
     # calculate linear regression estimate and r-squared
     x = np.array([1, 2, 3, 4]).reshape(-1, 1)
-    y = rev.to_numpy()
+    y = qrev.to_numpy()
     lin = LinearRegression()
     lin.fit(x, y)
     lin_score = lin.score(x, y)
@@ -231,110 +276,87 @@ def getRank(stock, yoy_revenue_growth, ps, margins, cash, debt, ebitda, rec):
 
     # calculate quadratic regression estimate and r-squared
     poly = PolynomialFeatures(degree=2)
-    X_poly = poly.fit_transform(x)
-    poly.fit(X_poly, y)
+    x_poly = poly.fit_transform(x)
+    poly.fit(x_poly, y)
     lin2 = LinearRegression()
-    lin2.fit(X_poly, y)
-    poly_score = lin2.score(X_poly, y)
+    lin2.fit(x_poly, y)
+    poly_score = lin2.score(x_poly, y)
     poly_revenue_est = lin2.predict(poly.fit_transform(np.array([1, 2, 3, 4, 5]).reshape(-1, 1))[4].reshape(1, -1))[0, 0]
 
-    # if data not showing clear pattern, not able to give rank
-    if max(lin_score, poly_score) < 0.8:
-        return rank
     # use revenue estimate of higher scoring model
-    if lin_score < poly_score:
-        revenue_est = (((poly_revenue_est / y[3, 0]) - 1) * .5 + yoy_revenue_growth * 1.5) / 2
-    else:
-        revenue_est = (((lin_revenue_est / y[3, 0]) - 1) * .5 + yoy_revenue_growth * 1.5) / 2
-    avg_revenue_growth = (revenue_est + y[3, 0] / y[2, 0] - 1 + y[2, 0] / y[1, 0] - 1 + y[1, 0] / y[0, 0] - 1) / 4
+    qrev_growth = poly_revenue_est / qrev[0, 0] - 1 if lin_score < poly_score else lin_revenue_est / qrev[0, 0] - 1
+    avg_revenue_growth = (rev[3, 0] / rev[2, 0] - 1 + rev[2, 0] / rev[1, 0] - 1 + rev[1, 0] / rev[0, 0] - 1) / 3
 
-    # if number of opinions too small, recommendation invalidated
+    # if quarterly data not showing clear pattern, cannot rely on it
+    if max(lin_score, poly_score) > 0.8:
+        predicted_growth = (avg_revenue_growth + qrev_growth + yoy_growth) / 3
+    else:
+        predicted_growth = (1.5 * avg_revenue_growth + 0.5 * yoy_growth) / 2
+
+    return predicted_growth
+
+
+def getRank(stock, yoy_revenue_growth, ps, margins, cash, debt, ebitda, rec):
+    rank: str = 'NA'
+
+    # no revenue information, not able to give rank
+    if 'Total Revenue' not in stock.financials.index:
+        return rank
+
+    annual_revenue = stock.financials.loc['Total Revenue', ].array[::-1].reshape(-1, 1)
+    quarterly_revenue = stock.quarterly_financials.loc['Total Revenue', ].array[::-1].reshape(-1, 1)
+    # if some revenue data missing, not able to give rank
+    if annual_revenue.shape != (4, 1) or np.count_nonzero(annual_revenue) != 4:
+        return rank
+    predicted_growth = getEstimatedRevenueGrowth(annual_revenue, quarterly_revenue, yoy_revenue_growth)
+
+    # if number of opinions too small, normalize recommendation rating. Otherwise if no
     if stock.info['numberOfAnalystOpinions'] is None:
-        rec = 3
-    elif stock.info['numberOfAnalystOpinions'] < 3:
-        rec = 3
-    grM = min(5, (1+avg_revenue_growth)**3)
+        return rank
+    elif stock.info['numberOfAnalystOpinions'] < 5:
+        rec = (rec + 3) / 2
+
+    grM = min(5, (1+predicted_growth)**3)
     # RS = (avg_revenue_growth - math.log(15 * ps / (100 * margins), 2) ** (1. / 3) + 1)*100
     RS = min(50, 50 * margins * 2**grM / ps)
     RR = (3 - rec) * 40
     score = RS + RR
 
     # add penalty for downward trending stocks
-    if avg_revenue_growth < -0.1:
-        score -= 160
-    elif avg_revenue_growth < -0.05:
-        score -= 80
-    elif avg_revenue_growth < 0:
-        score -= 40
-    elif avg_revenue_growth < 0.025:
-        score -= 20
-    elif avg_revenue_growth < 0.05:
-        score -= 15
-    elif avg_revenue_growth < 0.075:
-        score -= 10
-    elif avg_revenue_growth < 0.1:
-        score -= 5
+    low_growth_penalty = 745*predicted_growth - 58
+    score += min(0, low_growth_penalty)
 
     # add penalty for low amounts of cash compared to debt
     cash_over_debt = cash / debt
-    if cash_over_debt < 0.05:
-        score -= 160
-    elif cash_over_debt < 0.1:
-        score -= 80
-    elif cash_over_debt < 0.2:
-        score -= 40
-    elif cash_over_debt < 0.3:
-        score -= 20
-    elif cash_over_debt < 0.4:
-        score -= 15
-    elif cash_over_debt < 0.5:
-        score -= 10
-    elif cash_over_debt < 0.75:
-        score -= 5
+    low_cash_penalty = 177*cash_over_debt - 105
+    score += min(0, low_cash_penalty)
 
     # assign rank
+    remainder = score
     if score >= 90:
-        rank = 'SS'
-    elif score >= 87:
-        rank = 'S+'
-    elif score >= 83:
-        rank = 'S'
+        print(stock.info['symbol'], RS, RR, score, "SS", "*******************************")
+        return 'SS'
     elif score >= 80:
-        rank = 'S-'
-    elif score >= 77:
-        rank = 'A+'
-    elif score >= 73:
-        rank = 'A'
+        rank = 'S'; remainder -= 80
     elif score >= 70:
-        rank = 'A-'
-    elif score >= 67:
-        rank = 'B+'
-    elif score >= 63:
-        rank = 'B'
+        rank = 'A'; remainder -= 70
     elif score >= 60:
-        rank = 'B-'
-    elif score >= 57:
-        rank = 'C+'
-    elif score >= 53:
-        rank = 'C'
+        rank = 'B'; remainder -= 60
     elif score >= 50:
-        rank = 'C-'
-    elif score >= 47:
-        rank = 'D+'
-    elif score >= 43:
-        rank = 'D'
+        rank = 'C'; remainder -= 50
     elif score >= 40:
-        rank = 'D-'
-    elif score >= 37:
-        rank = 'E+'
-    elif score >= 33:
-        rank = 'E'
+        rank = 'D'; remainder -= 40
     elif score >= 30:
-        rank = 'E-'
+        rank = 'E'
     else:
-        rank = 'F'
+        return 'F'
 
-    if score > 87:
+    if remainder >= 7:
+        rank += '+'
+    elif remainder < 3:
+        rank += '-'
+
+    if score > 80:
         print(stock.info['symbol'], RS, RR, score, rank, "--------------------------------")
 
     return rank
@@ -429,29 +451,22 @@ def main():
     with open("/Users/nlogan/PycharmProjects/StockRank/NasdaqMidPlus.csv", "r") as f:
         reader = csv.reader(f, delimiter=",")
         for i, line in enumerate(reader):
-            if i == 0:  # skip the first line
+            if i < 1:  # skip the first line
                 continue
             symbol, company_name, _, _, _, market_cap, country, _, _, sector, industry = line
-            if country == "" and 'country' in stock.info:
-                country = stock.info['country']
-            if sector == "" and 'sector' in stock.info:
-                sector = stock.info['sector']
-            if industry == "" and 'industry' in stock.info:
-                industry = stock.info['industry']
-            description = "<no description>"
-            if 'longBusinessSummary' in stock.info:
-                description = stock.info['longBusinessSummary']
-            logo = "<no url>"
-            if 'logo_url' in stock.info:
-                logo = stock.info['logo_url'] 
-            # stock = yf.Ticker(symbol)
-            # insertIntoCompany(i, company_name, sector, industry, country, market_cap, description, logo)
-            # insertIntoStocks(symbol, i, *getStockInfo(stock))
+            stock = yf.Ticker(symbol)
+
+            country = stock.info['country'] if 'country' in stock.info else country
+            sector = stock.info['sector'] if 'sector' in stock.info else sector
+            industry = stock.info['industry'] if 'industry' in stock.info else industry
+            description = stock.info['longBusinessSummary'] if 'longBusinessSummary' in stock.info else "<none>"
+            logo = stock.info['logo_url'] if 'logo_url' in stock.info else "<none>"
+
+            # updateIntoCompany(i, company_name, sector, industry, country, market_cap, description, logo)
+            # updateIntoStocks(symbol, i, *getStockInfo(stock))
             # insertInsideOf(stock)
             # insertPrices(symbol) # have done all stocks greater than 200B market cap
             print(i)
 
 
 main()
-
-
