@@ -53,6 +53,8 @@ axiosInstance.interceptors.response.use(
       console.log("RETRYING FAILED REQUEST");
       return axiosInstance(error.config);
     }
+
+    originalRequest._retry = true;
     return Promise.reject(error);
   }
 );
