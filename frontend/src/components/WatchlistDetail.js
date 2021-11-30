@@ -1,9 +1,10 @@
 import { axiosInstance as axios } from "../axios";
 import React, { memo, useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
-import { Box, Main, List, Heading, Tab, Tabs, Text } from "grommet";
+import { Box, Main, Heading, Tab, Tabs, Text } from "grommet";
 import { SearchCompany } from "./SearchCompany";
 import { SearchStock } from "./SearchStock";
+import { WatchlistTierView } from "./WatchlistTierView";
 
 const WatchListDetail = memo(() => {
   let { watchlistId } = useParams();
@@ -54,11 +55,15 @@ const WatchListDetail = memo(() => {
       <Tabs>
         <Tab title="Stocks in this List">
           <Box pad="large" gap="medium">
-            <List primaryKey="tickersymbol" data={watches} />
+            <WatchlistTierView watches={watches} />
           </Box>
         </Tab>
         <Tab title="Search Stock by Company">
-          <SearchCompany />
+          <SearchCompany
+            watchlistId={watchlistId}
+            watches={watches}
+            setWatches={setWatches}
+          />
         </Tab>
         <Tab title="Search Stock by Ticker Symbol">
           <SearchStock

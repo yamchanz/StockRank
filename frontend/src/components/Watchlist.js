@@ -31,16 +31,14 @@ const Watchlist = memo(() => {
   };
 
   const onCreateClickHandler = () => {
-    if (newWatchlistName.length > 0) {
-      axios
-        .post("watchlist/", { watchlistname: newWatchlistName })
-        .then((res) => {
-          let nextWatchlists = [...watchlists];
-          nextWatchlists.unshift(res.data);
-          setWatchlists(nextWatchlists);
-          setNewWatchlistName("");
-        });
-    }
+    axios
+      .post("watchlist/", { watchlistname: newWatchlistName })
+      .then((res) => {
+        let nextWatchlists = [...watchlists];
+        nextWatchlists.unshift(res.data);
+        setWatchlists(nextWatchlists);
+        setNewWatchlistName("");
+      });
   };
 
   /**

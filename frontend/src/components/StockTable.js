@@ -1,5 +1,6 @@
 import { axiosInstance as axios } from "../axios";
 import {
+  Button,
   Table,
   TableBody,
   TableCell,
@@ -7,7 +8,6 @@ import {
   TableRow,
   TableFooter,
   Text,
-  Button,
 } from "grommet";
 import { Add } from "grommet-icons";
 import React from "react";
@@ -24,7 +24,6 @@ const StockTable = React.memo(
           tickersymbol: tickerSymbol,
         })
         .then((res) => {
-          console.log(res.data);
           let newWatches = [...watches];
           newWatches.unshift(res.data);
           setWatches(newWatches);
