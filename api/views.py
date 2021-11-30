@@ -16,6 +16,7 @@ from .serializers import (StocksSerializer, CompanySerializer, InsideofSerialize
 from .models import Belongsto, Stocks, Company, Insideof, Prices, Watchlist, Watches, Users
 from .permissions import IsPostOrIsAuthenticated
 from .helpers import get_userlogin, get_current_user
+import time
 
 
 class StocksView(APIView):
@@ -335,10 +336,16 @@ class WatchlistView(APIView):
             watchlist_serializer = WatchlistSerializer(instance=watchlist)
             return Response(watchlist_serializer.data, status=status.HTTP_200_OK)
         else:
+            '''
             watchlist_ids = Belongsto.objects.filter(
                 userlogin=user.pk).values_list('watchlistid')
-            watchlist_ids = tuple(watchlist_ids)
-            query = "SELECT * FROM Watchlist WHERE WatchlistID IN " + watchlist_ids
+            values = []
+            for item in watchlist_ids: values.append(item[0])
+            values = tuple(values)
+            '''
+            #print(watchlist_ids)
+            query = "SELECT * FROM Watchlist WHERE WatchlistID IN (SELECT WatchlistID FROM BelongsTo WHERE BelongsTo.UserLogin = " + "'" + str(user)+ "'" + ')'
+            print(query)
             watchlists = Watchlist.objects.raw(query)
             watchlist_serializer = WatchlistSerializer(
                 instance=watchlists, many=True)
@@ -351,17 +358,21 @@ class WatchlistView(APIView):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
         data = request.data
-        data['datecreated'] = datetime.now()
+        print(data)
+        data['datecreated'] = time.strftime('%Y-%m-%d %H:%M:%S')
         watchlist_serializer = WatchlistSerializer(data=request.data)
-        values = (data['WatchlistID'], data['WatchlistName'], data['DateCreated'])
-        query = "INSERT INTO Watchlist VALUES " + values
+        values = (data['watchlistname'], data['datecreated'])
+        print(str(values))
+        query = "INSERT INTO Watchlist(WatchlistName, DateCreated) VALUES" + str(values)
         #watchlist_serializer = WatchlistSerializer(instance=watchlists)
 
         if watchlist_serializer.is_valid():
             with connection.cursor() as cursor:
                 cursor.execute(query)
-            self.setup_belongs_to(
-                watchlist_serializer.data['watchlistid'], user.get_username())
+                cursor.execute('SELECT MAX(WatchlistID) FROM Watchlist')
+                id = cursor.fetchone()
+                print('id:' + str(id))
+            self.setup_belongs_to(id[0], user.get_username())
             return Response(watchlist_serializer.data, status=status.HTTP_201_CREATED)
         return Response(watchlist_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -388,17 +399,20 @@ class WatchlistView(APIView):
 
     # Delete a watchlist
     def delete(self, request):
+        print(request.__dict__)
         user = request.user
         if not user:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
-        print(request.data)
-        watchlist_id = request.data['watchlistid']
+        print('debug:' + str(request))
+        watchlist_id = request.data['watchlistId']
         if not watchlist_id:
             return Response(status=status.HTTP_400_BAD_REQUEST)
         with connection.cursor() as cursor:
-            watchlist = cursor.execute("SELECT * FROM Watchlist WHERE WatchlistID = " + watchlist_id)
+            watchlist = cursor.execute("SELECT * FROM Watchlist WHERE WatchlistID = " + str(watchlist_id))
             if watchlist:
-                cursor.execute("DELETE FROM Watchlist WHERE WatchlistID = " + watchlist_id)
+                cursor.execute("DELETE FROM BelongsTo WHERE WatchlistID = " + str(watchlist_id))
+                cursor.execute("DELETE FROM Watches WHERE WatchlistID = " + str(watchlist_id))
+                cursor.execute("DELETE FROM Watchlist WHERE WatchlistID = " + str(watchlist_id))
                 return Response(status=status.HTTP_200_OK)
             else:
                  return Response(status=status.HTTP_400_BAD_REQUEST)   
