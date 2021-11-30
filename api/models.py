@@ -167,13 +167,12 @@ class Users(AbstractBaseUser, PermissionsMixin):
 
 
 class Watches(models.Model):
-    watchlistid = models.OneToOneField(
-        'Watchlist', models.DO_NOTHING, db_column='WatchlistID', primary_key=True)
+    watchlistid = models.ForeignKey(
+        'Watchlist', models.DO_NOTHING, db_column='WatchlistID')
     tickersymbol = models.ForeignKey(
         Stocks, models.DO_NOTHING, db_column='TickerSymbol')
 
     class Meta:
-        managed = False
         db_table = 'Watches'
         unique_together = (('watchlistid', 'tickersymbol'),)
 
