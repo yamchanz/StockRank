@@ -429,6 +429,7 @@ class WatchesView(APIView):
         serializer = WatchesSerializer(data=request.data)
         print(request.data)
         print(serializer.is_valid())
+        print(serializer.errors)
         if serializer.is_valid():
             serializer.save()
 
