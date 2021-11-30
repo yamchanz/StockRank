@@ -1,6 +1,6 @@
 from django.contrib.auth import models
 from rest_framework import fields, serializers
-from .models import Stocks, Company, Insideof, Prices, Users, Watches, Watchlist, Belongsto
+from .models import AbnormalStocksTable, Stocks, Company, Insideof, Prices, Users, Watches, Watchlist, Belongsto
 
 
 class StocksSerializer(serializers.ModelSerializer):
@@ -105,3 +105,9 @@ class UsersSerializer(serializers.ModelSerializer):
 
         instance.save()
         return instance
+
+
+class ProcedureSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AbnormalStocksTable
+        fields = ('tickersymbol', 'abnormalstatus')

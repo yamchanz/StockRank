@@ -187,3 +187,14 @@ class Watchlist(models.Model):
 
     class Meta:
         db_table = 'Watchlist'
+
+
+class AbnormalStocksTable(models.Model):
+    tickersymbol = models.OneToOneField(
+        'Stocks', models.DO_NOTHING, db_column='TickerSymbol', primary_key=True)
+    abnormalstatus = models.CharField(
+        db_column='AbnormalStatus', max_length=8, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'AbnormalStocksTable'

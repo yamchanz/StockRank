@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import (StocksView, CompanyView,
+from .views import (StocksView, CompanyView, ProcedureView,
                     InsideofView, PricesView, UsersView, HomeView,
                     WatchlistView, WatchesView, BlacklistTokenView)
 from rest_framework_simplejwt.views import (
@@ -18,5 +18,6 @@ urlpatterns = [
     path('watches/', WatchesView.as_view()),
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('logout/', BlacklistTokenView.as_view(), name='blacklist')
+    path('logout/', BlacklistTokenView.as_view(), name='blacklist'),
+    path('procedure/', ProcedureView.as_view())
 ]

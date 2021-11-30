@@ -10,10 +10,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.hashers import make_password
 from django.db import connection
-from .serializers import (StocksSerializer, CompanySerializer, InsideofSerializer,
-                          PricesSerializer, UsersSerializer, WatchlistSerializer,
+from .serializers import (ProcedureSerializer, StocksSerializer, CompanySerializer, InsideofSerializer,
+                          PricesSerializer, UsersSerializer, WatchlistSerializer, 
                           BelongsToSerializer, WatchesSerializer)
-from .models import Belongsto, Stocks, Company, Insideof, Prices, Watchlist, Watches, Users
+from .models import AbnormalStocksTable, Belongsto, Stocks, Company, Insideof, Prices, Watchlist, Watches, Users
 from .permissions import IsPostOrIsAuthenticated
 from .helpers import get_userlogin, get_current_user
 
@@ -468,3 +468,8 @@ class BlacklistTokenView(APIView):
             return Response(status=status.HTTP_200_OK)
         except Exception as e:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class ProcedureView(generics.ListAPIView):
+    queryset = AbnormalStocksTable.objects.all()
+    serializer_class = ProcedureSerializer
