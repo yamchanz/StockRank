@@ -346,9 +346,7 @@ class WatchlistView(APIView):
             for item in watchlist_ids: values.append(item[0])
             values = tuple(values)
             '''
-            #print(watchlist_ids)
             query = "SELECT * FROM Watchlist WHERE WatchlistID IN (SELECT WatchlistID FROM BelongsTo WHERE BelongsTo.UserLogin = " + "'" + str(user)+ "'" + ')'
-            print(query)
             watchlists = Watchlist.objects.raw(query)
             watchlist_serializer = WatchlistSerializer(
                 instance=watchlists, many=True)
@@ -361,21 +359,23 @@ class WatchlistView(APIView):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
         data = request.data
-        print(data)
         data['datecreated'] = time.strftime('%Y-%m-%d %H:%M:%S')
         watchlist_serializer = WatchlistSerializer(data=request.data)
         values = (data['watchlistname'], data['datecreated'])
-        print(str(values))
         query = "INSERT INTO Watchlist(WatchlistName, DateCreated) VALUES" + str(values)
-        #watchlist_serializer = WatchlistSerializer(instance=watchlists)
-
         if watchlist_serializer.is_valid():
             with connection.cursor() as cursor:
                 cursor.execute(query)
                 cursor.execute('SELECT MAX(WatchlistID) FROM Watchlist')
                 id = cursor.fetchone()
-                print('id:' + str(id))
+
             self.setup_belongs_to(id[0], user.get_username())
+
+            # update serializer
+            watchlist_info_query = "SELECT * FROM Watchlist WHERE WatchlistID = " + str(id[0])
+            new_watchlist = Watchlist.objects.raw(watchlist_info_query)
+            watchlist_serializer = WatchlistSerializer(instance=new_watchlist[0])
+
             return Response(watchlist_serializer.data, status=status.HTTP_201_CREATED)
         return Response(watchlist_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
