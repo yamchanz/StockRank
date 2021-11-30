@@ -318,7 +318,10 @@ class WatchlistView(APIView):
                           'userlogin': userlogin}
         belongsTo_serializer = BelongsToSerializer(data=belongsTo_data)
         if belongsTo_serializer.is_valid():
-            belongsTo_serializer.save()
+            with connection.cursor() as cursor:
+                cursor.execute("INSERT INTO BelongsTo VALUES (%s, %s)", [userlogin, watchlistid])
+            return Response(status=status.HTTP_201_CREATED)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
     # Request watchlists belongs to current user
     def get(self, request):
@@ -326,13 +329,17 @@ class WatchlistView(APIView):
         if not user:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         if 'watchlistid' in request.GET:
-            watchlist = Watchlist.objects.get(pk=request.GET['watchlistid'])
+            watchlist = Watchlist.objects
+            query = "SELECT * FROM Watchlist WHERE WatchlistID = " + request.GET['watchlistid']
+            watchlist = watchlist.raw(query)
             watchlist_serializer = WatchlistSerializer(instance=watchlist)
             return Response(watchlist_serializer.data, status=status.HTTP_200_OK)
         else:
             watchlist_ids = Belongsto.objects.filter(
                 userlogin=user.pk).values_list('watchlistid')
-            watchlists = Watchlist.objects.filter(watchlistid__in=watchlist_ids)
+            watchlist_ids = tuple(watchlist_ids)
+            query = "SELECT * FROM Watchlist WHERE WatchlistID IN " + watchlist_ids
+            watchlists = Watchlist.objects.raw(query)
             watchlist_serializer = WatchlistSerializer(
                 instance=watchlists, many=True)
             return Response(watchlist_serializer.data, status=status.HTTP_200_OK)
@@ -346,13 +353,15 @@ class WatchlistView(APIView):
         data = request.data
         data['datecreated'] = datetime.now()
         watchlist_serializer = WatchlistSerializer(data=request.data)
+        values = (data['WatchlistID'], data['WatchlistName'], data['DateCreated'])
+        query = "INSERT INTO Watchlist VALUES " + values
+        #watchlist_serializer = WatchlistSerializer(instance=watchlists)
 
         if watchlist_serializer.is_valid():
-            watchlist_serializer.save()
-
+            with connection.cursor() as cursor:
+                cursor.execute(query)
             self.setup_belongs_to(
                 watchlist_serializer.data['watchlistid'], user.get_username())
-
             return Response(watchlist_serializer.data, status=status.HTTP_201_CREATED)
         return Response(watchlist_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -365,13 +374,15 @@ class WatchlistView(APIView):
         if not watchlist_id:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        print(request.data)
-        watchlist = Watchlist.objects.filter(pk=watchlist_id)
-        print(watchlist)
+        #print(request.data)
+        watchlist = Watchlist.objects.raw("SELECT * FROM Watchlist WHERE WatchlistID = " + watchlist_id)
+        #print(watchlist)
         serializers = WatchlistSerializer(
             instance=watchlist[0], data=request.data)
         if serializers.is_valid():
-            serializers.save()
+            if 'watchlistname' in request.GET:
+                with connection.cursor() as cursor:
+                    cursor.execute('UPDATE Watchlist SET WatchlistName = ' + request.GET['watchlistname'] + ' WHERE WatchlistID = ' + watchlist_id)
             return Response(serializers.data, status=status.HTTP_200_OK)
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -384,12 +395,13 @@ class WatchlistView(APIView):
         watchlist_id = request.data['watchlistid']
         if not watchlist_id:
             return Response(status=status.HTTP_400_BAD_REQUEST)
-        watchlist = Watchlist.objects.filter(pk=watchlist_id)[0]
-        op_success = watchlist.delete()
-        if op_success:
-            return Response(status=status.HTTP_200_OK)
-
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+        with connection.cursor() as cursor:
+            watchlist = cursor.execute("SELECT * FROM Watchlist WHERE WatchlistID = " + watchlist_id)
+            if watchlist:
+                cursor.execute("DELETE FROM Watchlist WHERE WatchlistID = " + watchlist_id)
+                return Response(status=status.HTTP_200_OK)
+            else:
+                 return Response(status=status.HTTP_400_BAD_REQUEST)   
 
 
 class WatchesView(APIView):
