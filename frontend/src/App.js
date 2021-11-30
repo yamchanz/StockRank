@@ -11,6 +11,7 @@ import { Logout } from "./components/Logout";
 import { Home } from "./components/Home";
 import { NavBar } from "./components/NavBar";
 import { Profile } from "./components/Settings";
+import { AbnormalTable } from "./components/AbnormalTable";
 
 function App() {
   return (
@@ -41,6 +42,9 @@ function App() {
             </Route>
             <Route path="/settings">
               <Profile />
+            </Route>
+            <Route path="/abnormal">
+              <AbnormalTable />
             </Route>
           </Switch>
         </Router>

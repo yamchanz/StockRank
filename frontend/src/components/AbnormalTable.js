@@ -1,39 +1,39 @@
 import { axiosInstance as axios } from "../axios";
-import {
-  Button,
-  Table,
-  TableBody,
-  TableCell,
-  TableHeader,
-  TableRow,
-} from "grommet";
+import React, { useState, useEffect } from "react";
+import { Table, TableBody, TableCell, TableHeader, TableRow } from "grommet";
 const AbnormalTable = React.memo(() => {
+  const [abnormalStocks, setAbnormalStocks] = useState([]);
+  useEffect(() => {
+    axios.get("procedure/").then((res) => {
+      setAbnormalStocks(res.data);
+    });
+  }, [setAbnormalStocks]);
   return (
     <Table>
       <TableHeader>
         <TableRow>
           <TableCell scope="col" border="bottom">
-            Name
+            Ticker Symbol
           </TableCell>
           <TableCell scope="col" border="bottom">
-            Flavor
+            Abnormal Status
           </TableCell>
         </TableRow>
       </TableHeader>
-      <TableBody>
-        <TableRow>
-          <TableCell scope="row">
-            <strong>Eric</strong>
-          </TableCell>
-          <TableCell>Coconut</TableCell>
-        </TableRow>
-        <TableRow>
-          <TableCell scope="row">
-            <strong>Chris</strong>
-          </TableCell>
-          <TableCell>Watermelon</TableCell>
-        </TableRow>
-      </TableBody>
+      {abnormalStocks.length === 0 ? null : (
+        <TableBody>
+          {abnormalStocks.map((stock, idx) => {
+            return (
+              <TableRow key={idx}>
+                <TableCell scope="row">
+                  <strong>{stock.tickersymbol}</strong>
+                </TableCell>
+                <TableCell>{stock.abnormalstatus}</TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      )}
     </Table>
   );
 });
