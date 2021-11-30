@@ -333,9 +333,8 @@ class WatchlistView(APIView):
         if not user:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         if 'watchlistid' in request.GET:
-            watchlist = Watchlist.objects
             query = "SELECT * FROM Watchlist WHERE WatchlistID = " + request.GET['watchlistid']
-            watchlist = watchlist.raw(query)
+            watchlist = Watchlist.objects.raw(query)[0]
             watchlist_serializer = WatchlistSerializer(instance=watchlist)
             return Response(watchlist_serializer.data, status=status.HTTP_200_OK)
         else:
@@ -384,19 +383,16 @@ class WatchlistView(APIView):
         user = request.user
         if not user:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
-        watchlist_id = request.data['watchlistid']
-        if not watchlist_id:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        #print(request.data)
-        watchlist = Watchlist.objects.raw("SELECT * FROM Watchlist WHERE WatchlistID = " + watchlist_id)
-        #print(watchlist)
-        serializers = WatchlistSerializer(
-            instance=watchlist[0], data=request.data)
+        serializers = WatchlistSerializer(data=request.data)
         if serializers.is_valid():
-            if 'watchlistname' in request.GET:
+            watchlist_id = request.data['watchlistid']
+            watchlist_name = request.data['watchlistname']
+            if 'watchlistname' in request.data:
                 with connection.cursor() as cursor:
-                    cursor.execute('UPDATE Watchlist SET WatchlistName = ' + request.GET['watchlistname'] + ' WHERE WatchlistID = ' + watchlist_id)
+                    cursor.execute('UPDATE Watchlist SET WatchlistName = %s '
+                        'WHERE WatchlistID = %s',
+                    [watchlist_name, watchlist_id])
             return Response(serializers.data, status=status.HTTP_200_OK)
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
