@@ -55,7 +55,7 @@ const WatchListDetail = memo(() => {
       <Tabs>
         <Tab title="Stocks in this List">
           <Box pad="large" gap="medium">
-            <WatchlistTierView tickerSymbols={watches} />
+            <WatchlistTierView watches={watches} />
           </Box>
         </Tab>
         <Tab title="Search Stock by Company">

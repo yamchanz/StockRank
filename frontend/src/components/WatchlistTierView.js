@@ -1,8 +1,15 @@
 import { axiosInstance as axios } from "../axios";
 import React, { memo, useState, useEffect } from "react";
-import { Table, TableBody, TableCell, TableHeader, TableRow } from "grommet";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHeader,
+  TableRow,
+  Meter,
+} from "grommet";
 
-const WatchlistTierView = memo(({ tickerSymbols }) => {
+const WatchlistTierView = memo(({ watches }) => {
   const [loading, setLoading] = useState(true);
   const [lists, setLists] = useState({
     SS: [],
@@ -24,13 +31,14 @@ const WatchlistTierView = memo(({ tickerSymbols }) => {
     F: [],
     NA: [],
   });
+
   useEffect(() => {
     const fetchTiers = async () => {
-      setLists(await generateLists(tickerSymbols));
+      setLists(await generateLists(watches));
       setLoading(false);
     };
     fetchTiers();
-  }, [tickerSymbols]);
+  }, [watches]);
 
   return (
     <React.Fragment>
@@ -38,157 +46,394 @@ const WatchlistTierView = memo(({ tickerSymbols }) => {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableCell scope="col" border="bottom">
+              <TableCell align="center" scope="col" border="bottom">
                 Tier
               </TableCell>
-              <TableCell scope="col" border="bottom">
+              <TableCell align="center" scope="col" border="bottom">
                 Ticker Symbol
+              </TableCell>
+              <TableCell align="center" scope="col" border="bottom">
+                Percentage
               </TableCell>
             </TableRow>
           </TableHeader>
           <TableBody>
             <TableRow>
-              <TableCell scope="col" border="bottom">
+              <TableCell align="center" scope="row">
                 SS
               </TableCell>
-              <TableCell scope="col" border="bottom">
+              <TableCell align="center" scope="row">
                 {lists["SS"].join(",")}
               </TableCell>
+              <TableCell align="center" scope="row">
+                <Meter
+                  values={[
+                    {
+                      value: calculatePercentage(
+                        lists["SS"].length,
+                        watches.length
+                      ),
+                    },
+                  ]}
+                  aria-label="meter"
+                ></Meter>
+              </TableCell>
             </TableRow>
             <TableRow>
-              <TableCell scope="col" border="bottom">
+              <TableCell align="center" scope="row">
                 S+
               </TableCell>
-              <TableCell scope="col" border="bottom">
+              <TableCell align="center" scope="row">
                 {lists["S+"].join(",")}
               </TableCell>
+              <TableCell align="center" scope="row">
+                <Meter
+                  values={[
+                    {
+                      value: calculatePercentage(
+                        lists["S+"].length,
+                        watches.length
+                      ),
+                    },
+                  ]}
+                  aria-label="meter"
+                ></Meter>
+              </TableCell>
             </TableRow>
             <TableRow>
-              <TableCell scope="col" border="bottom">
+              <TableCell align="center" scope="row">
                 S
               </TableCell>
-              <TableCell scope="col" border="bottom">
+              <TableCell align="center" scope="row">
                 {lists["S"].join(",")}
               </TableCell>
+              <TableCell align="center" scope="row">
+                <Meter
+                  values={[
+                    {
+                      value: calculatePercentage(
+                        lists["S"].length,
+                        watches.length
+                      ),
+                    },
+                  ]}
+                  aria-label="meter"
+                ></Meter>
+              </TableCell>
             </TableRow>
             <TableRow>
-              <TableCell scope="col" border="bottom">
+              <TableCell align="center" scope="row">
                 S-
               </TableCell>
-              <TableCell scope="col" border="bottom">
+              <TableCell align="center" scope="row">
                 {lists["S-"].join(",")}
               </TableCell>
+              <TableCell align="center" scope="row">
+                <Meter
+                  values={[
+                    {
+                      value: calculatePercentage(
+                        lists["S-"].length,
+                        watches.length
+                      ),
+                    },
+                  ]}
+                  aria-label="meter"
+                ></Meter>
+              </TableCell>
             </TableRow>
             <TableRow>
-              <TableCell scope="col" border="bottom">
+              <TableCell align="center" scope="row">
                 A+
               </TableCell>
-              <TableCell scope="col" border="bottom">
+              <TableCell align="center" scope="row">
                 {lists["A+"].join(",")}
               </TableCell>
+              <TableCell align="center" scope="row">
+                <Meter
+                  values={[
+                    {
+                      value: calculatePercentage(
+                        lists["A+"].length,
+                        watches.length
+                      ),
+                    },
+                  ]}
+                  aria-label="meter"
+                ></Meter>
+              </TableCell>
             </TableRow>
             <TableRow>
-              <TableCell scope="col" border="bottom">
+              <TableCell align="center" scope="row">
                 A
               </TableCell>
-              <TableCell scope="col" border="bottom">
+              <TableCell align="center" scope="row">
                 {lists["A"].join(",")}
               </TableCell>
+              <TableCell align="center" scope="row">
+                <Meter
+                  values={[
+                    {
+                      value: calculatePercentage(
+                        lists["A"].length,
+                        watches.length
+                      ),
+                    },
+                  ]}
+                  aria-label="meter"
+                ></Meter>
+              </TableCell>
             </TableRow>
             <TableRow>
-              <TableCell scope="col" border="bottom">
+              <TableCell align="center" scope="row">
                 A-
               </TableCell>
-              <TableCell scope="col" border="bottom">
+              <TableCell align="center" scope="row">
                 {lists["A-"].join(",")}
               </TableCell>
+              <TableCell align="center" scope="row">
+                <Meter
+                  values={[
+                    {
+                      value: calculatePercentage(
+                        lists["A-"].length,
+                        watches.length
+                      ),
+                    },
+                  ]}
+                  aria-label="meter"
+                ></Meter>
+              </TableCell>
             </TableRow>
             <TableRow>
-              <TableCell scope="col" border="bottom">
+              <TableCell align="center" scope="row">
                 B+
               </TableCell>
-              <TableCell scope="col" border="bottom">
+              <TableCell align="center" scope="row">
                 {lists["B+"].join(",")}
               </TableCell>
+              <TableCell align="center" scope="row">
+                <Meter
+                  values={[
+                    {
+                      value: calculatePercentage(
+                        lists["B+"].length,
+                        watches.length
+                      ),
+                    },
+                  ]}
+                  aria-label="meter"
+                ></Meter>
+              </TableCell>
             </TableRow>
             <TableRow>
-              <TableCell scope="col" border="bottom">
+              <TableCell align="center" scope="row">
                 B
               </TableCell>
-              <TableCell scope="col" border="bottom">
+              <TableCell align="center" scope="row">
                 {lists["B"].join(",")}
               </TableCell>
+              <TableCell align="center" scope="row">
+                <Meter
+                  values={[
+                    {
+                      value: calculatePercentage(
+                        lists["B"].length,
+                        watches.length
+                      ),
+                    },
+                  ]}
+                  aria-label="meter"
+                ></Meter>
+              </TableCell>
             </TableRow>
             <TableRow>
-              <TableCell scope="col" border="bottom">
+              <TableCell align="center" scope="row">
                 B-
               </TableCell>
-              <TableCell scope="col" border="bottom">
+              <TableCell align="center" scope="row">
                 {lists["B-"].join(",")}
               </TableCell>
+              <TableCell align="center" scope="row">
+                <Meter
+                  values={[
+                    {
+                      value: calculatePercentage(
+                        lists["B-"].length,
+                        watches.length
+                      ),
+                    },
+                  ]}
+                  aria-label="meter"
+                ></Meter>
+              </TableCell>
             </TableRow>
             <TableRow>
-              <TableCell scope="col" border="bottom">
+              <TableCell align="center" scope="row">
                 C+
               </TableCell>
-              <TableCell scope="col" border="bottom">
+              <TableCell align="center" scope="row">
                 {lists["C+"].join(",")}
               </TableCell>
+              <TableCell align="center" scope="row">
+                <Meter
+                  values={[
+                    {
+                      value: calculatePercentage(
+                        lists["C+"].length,
+                        watches.length
+                      ),
+                    },
+                  ]}
+                  aria-label="meter"
+                ></Meter>
+              </TableCell>
             </TableRow>
             <TableRow>
-              <TableCell scope="col" border="bottom">
+              <TableCell align="center" scope="row">
                 C
               </TableCell>
-              <TableCell scope="col" border="bottom">
+              <TableCell align="center" scope="row">
                 {lists["C"].join(",")}
               </TableCell>
+              <TableCell align="center" scope="row">
+                <Meter
+                  values={[
+                    {
+                      value: calculatePercentage(
+                        lists["C"].length,
+                        watches.length
+                      ),
+                    },
+                  ]}
+                  aria-label="meter"
+                ></Meter>
+              </TableCell>
             </TableRow>
             <TableRow>
-              <TableCell scope="col" border="bottom">
+              <TableCell align="center" scope="row">
                 C-
               </TableCell>
-              <TableCell scope="col" border="bottom">
+              <TableCell align="center" scope="row">
                 {lists["C-"].join(",")}
               </TableCell>
+              <TableCell align="center" scope="row">
+                <Meter
+                  values={[
+                    {
+                      value: calculatePercentage(
+                        lists["C-"].length,
+                        watches.length
+                      ),
+                    },
+                  ]}
+                  aria-label="meter"
+                ></Meter>
+              </TableCell>
             </TableRow>
             <TableRow>
-              <TableCell scope="col" border="bottom">
+              <TableCell align="center" scope="row">
                 D+
               </TableCell>
-              <TableCell scope="col" border="bottom">
+              <TableCell align="center" scope="row">
                 {lists["D+"].join(",")}
               </TableCell>
+              <TableCell align="center" scope="row">
+                <Meter
+                  values={[
+                    {
+                      value: calculatePercentage(
+                        lists["D+"].length,
+                        watches.length
+                      ),
+                    },
+                  ]}
+                  aria-label="meter"
+                ></Meter>
+              </TableCell>
             </TableRow>
             <TableRow>
-              <TableCell scope="col" border="bottom">
+              <TableCell align="center" scope="row">
                 D
               </TableCell>
-              <TableCell scope="col" border="bottom">
+              <TableCell align="center" scope="row">
                 {lists["D"].join(",")}
               </TableCell>
+              <TableCell align="center" scope="row">
+                <Meter
+                  values={[
+                    {
+                      value: calculatePercentage(
+                        lists["D"].length,
+                        watches.length
+                      ),
+                    },
+                  ]}
+                  aria-label="meter"
+                ></Meter>
+              </TableCell>
             </TableRow>
             <TableRow>
-              <TableCell scope="col" border="bottom">
+              <TableCell align="center" scope="row">
                 D-
               </TableCell>
-              <TableCell scope="col" border="bottom">
+              <TableCell align="center" scope="row">
                 {lists["D-"].join(",")}
               </TableCell>
+              <TableCell align="center" scope="row">
+                <Meter
+                  values={[
+                    {
+                      value: calculatePercentage(
+                        lists["D-"].length,
+                        watches.length
+                      ),
+                    },
+                  ]}
+                  aria-label="meter"
+                ></Meter>
+              </TableCell>
             </TableRow>
             <TableRow>
-              <TableCell scope="col" border="bottom">
+              <TableCell align="center" scope="row">
                 F
               </TableCell>
-              <TableCell scope="col" border="bottom">
+              <TableCell align="center" scope="row">
                 {lists["F"].join(",")}
+              </TableCell>
+              <TableCell align="center" scope="row">
+                <Meter
+                  values={[
+                    {
+                      value: calculatePercentage(
+                        lists["F"].length,
+                        watches.length
+                      ),
+                    },
+                  ]}
+                  aria-label="meter"
+                ></Meter>
               </TableCell>
             </TableRow>
             <TableRow>
-              <TableCell scope="col" border="bottom">
+              <TableCell align="center" scope="row">
                 NA
               </TableCell>
-              <TableCell scope="col" border="bottom">
+              <TableCell align="center" scope="row">
                 {lists["NA"].join(",")}
+              </TableCell>
+              <TableCell align="center" scope="row">
+                <Meter
+                  values={[
+                    {
+                      value: calculatePercentage(
+                        lists["NA"].length,
+                        watches.length
+                      ),
+                    },
+                  ]}
+                  aria-label="meter"
+                ></Meter>
               </TableCell>
             </TableRow>
           </TableBody>
@@ -197,6 +442,11 @@ const WatchlistTierView = memo(({ tickerSymbols }) => {
     </React.Fragment>
   );
 });
+
+const calculatePercentage = (tierLength, watchesLength) => {
+  if (tierLength === 0) return 0;
+  return (tierLength / watchesLength) * 100;
+};
 
 const generateLists = async (watches) => {
   const lists = {
