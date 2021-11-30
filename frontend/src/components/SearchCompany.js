@@ -181,6 +181,7 @@ const createSearchURL = (
 
   if (tier.length > 0) {
     if (searchURL.length > 0) searchURL += "&";
+    if (tier[1] === '+') tier = tier[0] + "%2B";
     searchURL += "tier=" + tier;
   }
 
