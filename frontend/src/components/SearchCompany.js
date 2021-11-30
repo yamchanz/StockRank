@@ -3,148 +3,155 @@ import React, { useState } from "react";
 import { Box, Select, TextInput, Text, Button } from "grommet";
 import { CompanyTable } from "./CompanyTable";
 
-const SearchCompany = React.memo(() => {
-  const [companyName, setCompanyName] = useState("");
-  const [sector, setSector] = useState("");
-  const [industry, setIndustry] = useState("");
-  const [country, setCountry] = useState("");
-  const [marketCapGTE, setMarketCapGTE] = useState();
-  const [marketCapLTE, setMarketCapLTE] = useState();
-  const [tier, setTier] = useState("A");
-  const [searchResult, setSearchResult] = useState();
+const SearchCompany = React.memo(
+  ({ watchlistId = null, watches = null, setWatches = null }) => {
+    const [companyName, setCompanyName] = useState("");
+    const [sector, setSector] = useState("");
+    const [industry, setIndustry] = useState("");
+    const [country, setCountry] = useState("");
+    const [marketCapGTE, setMarketCapGTE] = useState();
+    const [marketCapLTE, setMarketCapLTE] = useState();
+    const [tier, setTier] = useState("A");
+    const [searchResult, setSearchResult] = useState();
 
-  const TIER_OPTIONS = [
-    "SS",
-    "S+",
-    "S",
-    "S-",
-    "A+",
-    "A",
-    "A-",
-    "B+",
-    "B",
-    "B-",
-    "C+",
-    "C",
-    "C-",
-    "D+",
-    "D",
-    "D-",
-    "F",
-    "NA",
-  ];
+    const TIER_OPTIONS = [
+      "SS",
+      "S+",
+      "S",
+      "S-",
+      "A+",
+      "A",
+      "A-",
+      "B+",
+      "B",
+      "B-",
+      "C+",
+      "C",
+      "C-",
+      "D+",
+      "D",
+      "D-",
+      "F",
+      "NA",
+    ];
 
-  const companyNameOnChangeHandler = (event) => {
-    setCompanyName(event.target.value);
-  };
+    const companyNameOnChangeHandler = (event) => {
+      setCompanyName(event.target.value);
+    };
 
-  const sectorOnChangeHandler = (event) => {
-    setSector(event.target.value);
-  };
+    const sectorOnChangeHandler = (event) => {
+      setSector(event.target.value);
+    };
 
-  const industryOnChangeHandler = (event) => {
-    setIndustry(event.target.value);
-  };
+    const industryOnChangeHandler = (event) => {
+      setIndustry(event.target.value);
+    };
 
-  const countryOnChangeHandler = (event) => {
-    setCountry(event.target.value);
-  };
+    const countryOnChangeHandler = (event) => {
+      setCountry(event.target.value);
+    };
 
-  const marketCapGTEOnChangeHandler = (event) => {
-    setMarketCapGTE(event.target.value);
-  };
+    const marketCapGTEOnChangeHandler = (event) => {
+      setMarketCapGTE(event.target.value);
+    };
 
-  const marketCapLTEOnChangeHandler = (event) => {
-    setMarketCapLTE(event.target.value);
-  };
+    const marketCapLTEOnChangeHandler = (event) => {
+      setMarketCapLTE(event.target.value);
+    };
 
-  const onSelectChangeHandler = (event) => {
-    setTier(event.target.value);
-  };
+    const onSelectChangeHandler = (event) => {
+      setTier(event.target.value);
+    };
 
-  const onSearchClickHandler = () => {
-    const searchURL = createSearchURL(
-      companyName,
-      sector,
-      industry,
-      country,
-      tier,
-      marketCapGTE,
-      marketCapLTE
+    const onSearchClickHandler = () => {
+      const searchURL = createSearchURL(
+        companyName,
+        sector,
+        industry,
+        country,
+        tier,
+        marketCapGTE,
+        marketCapLTE
+      );
+
+      axios.get("company/?" + searchURL).then((res) => {
+        setSearchResult(res.data);
+      });
+    };
+
+    return (
+      <Box pad="large" gap="medium">
+        <Box gap="small">
+          <Text>Company Name</Text>
+          <TextInput
+            placeholder="Starts with or Exact"
+            value={companyName}
+            onChange={companyNameOnChangeHandler}
+          />
+        </Box>
+        <Box gap="small">
+          <Text>Sector</Text>
+          <TextInput
+            placeholder="Ex. Technology"
+            value={sector}
+            onChange={sectorOnChangeHandler}
+          />
+        </Box>
+        <Box gap="small">
+          <Text>Industry</Text>
+          <TextInput
+            placeholder="Ex. Biotechnology"
+            value={industry}
+            onChange={industryOnChangeHandler}
+          />
+        </Box>
+        <Box gap="small">
+          <Text>Country</Text>
+          <TextInput
+            placeholder="Ex. United States"
+            value={country}
+            onChange={countryOnChangeHandler}
+          />
+        </Box>
+        <Box gap="small">
+          <Text>Market Cap Greater or Eaquals to</Text>
+          <TextInput
+            placeholder="Ex. 500000"
+            type="number"
+            value={marketCapGTE || ""}
+            onChange={marketCapGTEOnChangeHandler}
+          />
+        </Box>
+        <Box gap="small">
+          <Text>Market Cap Less than or Eaquals to</Text>
+          <TextInput
+            placeholder="Ex. 100000000"
+            type="number"
+            value={marketCapLTE || ""}
+            onChange={marketCapLTEOnChangeHandler}
+          />
+        </Box>
+        <Box gap="small">
+          <Text>Tier</Text>
+          <Select
+            clear
+            closeOnChange
+            options={TIER_OPTIONS}
+            onChange={onSelectChangeHandler}
+            defaultValue="A"
+          ></Select>
+        </Box>
+        <Button label="Search" onClick={onSearchClickHandler}></Button>
+        <CompanyTable
+          companies={searchResult}
+          watchlistId={watchlistId}
+          watches={watches}
+          setWatches={setWatches}
+        />
+      </Box>
     );
-
-    axios.get("company/?" + searchURL).then((res) => {
-      setSearchResult(res.data);
-    });
-  };
-
-  return (
-    <Box pad="large" gap="medium">
-      <Box gap="small">
-        <Text>Company Name</Text>
-        <TextInput
-          placeholder="Starts with or Exact"
-          value={companyName}
-          onChange={companyNameOnChangeHandler}
-        />
-      </Box>
-      <Box gap="small">
-        <Text>Sector</Text>
-        <TextInput
-          placeholder="Ex. Technology"
-          value={sector}
-          onChange={sectorOnChangeHandler}
-        />
-      </Box>
-      <Box gap="small">
-        <Text>Industry</Text>
-        <TextInput
-          placeholder="Ex. Biotechnology"
-          value={industry}
-          onChange={industryOnChangeHandler}
-        />
-      </Box>
-      <Box gap="small">
-        <Text>Country</Text>
-        <TextInput
-          placeholder="Ex. United States"
-          value={country}
-          onChange={countryOnChangeHandler}
-        />
-      </Box>
-      <Box gap="small">
-        <Text>Market Cap Greater or Eaquals to</Text>
-        <TextInput
-          placeholder="Ex. 500000"
-          type="number"
-          value={marketCapGTE || ""}
-          onChange={marketCapGTEOnChangeHandler}
-        />
-      </Box>
-      <Box gap="small">
-        <Text>Market Cap Less than or Eaquals to</Text>
-        <TextInput
-          placeholder="Ex. 100000000"
-          type="number"
-          value={marketCapLTE || ""}
-          onChange={marketCapLTEOnChangeHandler}
-        />
-      </Box>
-      <Box gap="small">
-        <Text>Tier</Text>
-        <Select
-          clear
-          closeOnChange
-          options={TIER_OPTIONS}
-          onChange={onSelectChangeHandler}
-          defaultValue="A"
-        ></Select>
-      </Box>
-      <Button label="Search" onClick={onSearchClickHandler}></Button>
-      <CompanyTable companies={searchResult} />
-    </Box>
-  );
-});
+  }
+);
 
 const capitalizeFirstChar = (str) => {
   return str[0].toUpperCase() + str.substr(1);
@@ -181,7 +188,7 @@ const createSearchURL = (
 
   if (tier.length > 0) {
     if (searchURL.length > 0) searchURL += "&";
-    if (tier[1] === '+') tier = tier[0] + "%2B";
+    if (tier[1] === "+") tier = tier[0] + "%2B";
     searchURL += "tier=" + tier;
   }
 

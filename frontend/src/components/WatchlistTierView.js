@@ -63,7 +63,7 @@ const WatchlistTierView = memo(({ watches }) => {
                 SS
               </TableCell>
               <TableCell align="center" scope="row">
-                {lists["SS"].join(",")}
+                {lists["SS"].join(", ")}
               </TableCell>
               <TableCell align="center" scope="row">
                 <Meter
@@ -84,7 +84,7 @@ const WatchlistTierView = memo(({ watches }) => {
                 S+
               </TableCell>
               <TableCell align="center" scope="row">
-                {lists["S+"].join(",")}
+                {lists["S+"].join(", ")}
               </TableCell>
               <TableCell align="center" scope="row">
                 <Meter
@@ -105,7 +105,7 @@ const WatchlistTierView = memo(({ watches }) => {
                 S
               </TableCell>
               <TableCell align="center" scope="row">
-                {lists["S"].join(",")}
+                {lists["S"].join(", ")}
               </TableCell>
               <TableCell align="center" scope="row">
                 <Meter
@@ -126,7 +126,7 @@ const WatchlistTierView = memo(({ watches }) => {
                 S-
               </TableCell>
               <TableCell align="center" scope="row">
-                {lists["S-"].join(",")}
+                {lists["S-"].join(", ")}
               </TableCell>
               <TableCell align="center" scope="row">
                 <Meter
@@ -147,7 +147,7 @@ const WatchlistTierView = memo(({ watches }) => {
                 A+
               </TableCell>
               <TableCell align="center" scope="row">
-                {lists["A+"].join(",")}
+                {lists["A+"].join(", ")}
               </TableCell>
               <TableCell align="center" scope="row">
                 <Meter
@@ -168,7 +168,7 @@ const WatchlistTierView = memo(({ watches }) => {
                 A
               </TableCell>
               <TableCell align="center" scope="row">
-                {lists["A"].join(",")}
+                {lists["A"].join(", ")}
               </TableCell>
               <TableCell align="center" scope="row">
                 <Meter
@@ -189,7 +189,7 @@ const WatchlistTierView = memo(({ watches }) => {
                 A-
               </TableCell>
               <TableCell align="center" scope="row">
-                {lists["A-"].join(",")}
+                {lists["A-"].join(", ")}
               </TableCell>
               <TableCell align="center" scope="row">
                 <Meter
@@ -210,7 +210,7 @@ const WatchlistTierView = memo(({ watches }) => {
                 B+
               </TableCell>
               <TableCell align="center" scope="row">
-                {lists["B+"].join(",")}
+                {lists["B+"].join(", ")}
               </TableCell>
               <TableCell align="center" scope="row">
                 <Meter
@@ -231,7 +231,7 @@ const WatchlistTierView = memo(({ watches }) => {
                 B
               </TableCell>
               <TableCell align="center" scope="row">
-                {lists["B"].join(",")}
+                {lists["B"].join(", ")}
               </TableCell>
               <TableCell align="center" scope="row">
                 <Meter
@@ -252,7 +252,7 @@ const WatchlistTierView = memo(({ watches }) => {
                 B-
               </TableCell>
               <TableCell align="center" scope="row">
-                {lists["B-"].join(",")}
+                {lists["B-"].join(", ")}
               </TableCell>
               <TableCell align="center" scope="row">
                 <Meter
@@ -273,7 +273,7 @@ const WatchlistTierView = memo(({ watches }) => {
                 C+
               </TableCell>
               <TableCell align="center" scope="row">
-                {lists["C+"].join(",")}
+                {lists["C+"].join(", ")}
               </TableCell>
               <TableCell align="center" scope="row">
                 <Meter
@@ -294,7 +294,7 @@ const WatchlistTierView = memo(({ watches }) => {
                 C
               </TableCell>
               <TableCell align="center" scope="row">
-                {lists["C"].join(",")}
+                {lists["C"].join(", ")}
               </TableCell>
               <TableCell align="center" scope="row">
                 <Meter
@@ -315,7 +315,7 @@ const WatchlistTierView = memo(({ watches }) => {
                 C-
               </TableCell>
               <TableCell align="center" scope="row">
-                {lists["C-"].join(",")}
+                {lists["C-"].join(", ")}
               </TableCell>
               <TableCell align="center" scope="row">
                 <Meter
@@ -336,7 +336,7 @@ const WatchlistTierView = memo(({ watches }) => {
                 D+
               </TableCell>
               <TableCell align="center" scope="row">
-                {lists["D+"].join(",")}
+                {lists["D+"].join(", ")}
               </TableCell>
               <TableCell align="center" scope="row">
                 <Meter
@@ -357,7 +357,7 @@ const WatchlistTierView = memo(({ watches }) => {
                 D
               </TableCell>
               <TableCell align="center" scope="row">
-                {lists["D"].join(",")}
+                {lists["D"].join(", ")}
               </TableCell>
               <TableCell align="center" scope="row">
                 <Meter
@@ -378,7 +378,7 @@ const WatchlistTierView = memo(({ watches }) => {
                 D-
               </TableCell>
               <TableCell align="center" scope="row">
-                {lists["D-"].join(",")}
+                {lists["D-"].join(", ")}
               </TableCell>
               <TableCell align="center" scope="row">
                 <Meter
@@ -399,7 +399,7 @@ const WatchlistTierView = memo(({ watches }) => {
                 F
               </TableCell>
               <TableCell align="center" scope="row">
-                {lists["F"].join(",")}
+                {lists["F"].join(", ")}
               </TableCell>
               <TableCell align="center" scope="row">
                 <Meter
@@ -420,7 +420,7 @@ const WatchlistTierView = memo(({ watches }) => {
                 NA
               </TableCell>
               <TableCell align="center" scope="row">
-                {lists["NA"].join(",")}
+                {lists["NA"].join(", ")}
               </TableCell>
               <TableCell align="center" scope="row">
                 <Meter

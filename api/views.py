@@ -32,6 +32,9 @@ class StocksView(APIView):
         
         if "tickersymbol" in request.GET:
             stocks = stocks.filter(tickersymbol=request.GET["tickersymbol"])
+        
+        if "companyid" in request.GET:
+            stocks = stocks.filter(companyid=request.GET["companyid"])
 
         serializers = StocksSerializer(stocks, many=True)
         return Response(serializers.data, status=status.HTTP_200_OK)
